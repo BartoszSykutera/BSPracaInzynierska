@@ -11,12 +11,12 @@ namespace BSPracaInzynierska.Client.Services
         {
             this.http = http;
         }
-        public async Task<string> Login(string username, string password)
+        public async Task<AuthenticationToken> Login(string username, string password)
         {
             UserLogs userLogs = new UserLogs { Password = password, Username = username };
             var result = await http.PostAsJsonAsync<UserLogs>("api/Auth/login", userLogs);
 
-            return await result.Content.ReadFromJsonAsync<string>();
+            return await result.Content.ReadFromJsonAsync<AuthenticationToken>();
         }
 
         public async Task Register(string username, string password)

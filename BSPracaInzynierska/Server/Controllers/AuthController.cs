@@ -55,29 +55,32 @@ namespace BSPracaInzynierska.Server.Controllers
             CreatePasswordHash(userLogs.Password, out byte[] hash, out byte[] salt);
             var user = new User { Username = userLogs.Username, Email = userLogs.Username, PasswordHash = hash, PasswordSalt = salt, Id = 1, Role = "Admin" };
             context.Users.Add(user);
-            context.SaveChanges();
+            await context.SaveChangesAsync();
 
             return Ok();
         }
 
         [HttpPost("login")]
-        public async Task<ActionResult<string>> Login(UserLogs userLogs)
+        public async Task<ActionResult<AuthenticationToken>> Login(UserLogs userLogs)
         {
-            var user = context.Users.Where(u => u.Username == userLogs.Username).FirstOrDefault();
+            string token = string.Empty;
+            //var user = context.Users.Where(u => u.Username == userLogs.Username).FirstOrDefault();
 
-            if (user == null)
-            {
-                return BadRequest("User not found");
-            }
+            //if (user == null)
+            //{
+            //return BadRequest("User not found");
+            //}
 
-            if (!VerifyPasswordHash(userLogs.Password, user.PasswordHash, user.PasswordSalt))
-            {
-                return BadRequest("Wrong password");
-            }
+            //if (!VerifyPasswordHash(userLogs.Password, user.PasswordHash, user.PasswordSalt))
+            //{
+            //return BadRequest("Wrong password");
+            //}
 
-            string token = CreateToken(user);
+            var user = new User { Username = "QQQ", Email = "qq", Id = 1, Role = "Admin" };
 
-            return Ok(token);
+            token = CreateToken(user);
+
+            return Ok(new AuthenticationToken() { Token = token });
         }
         
         [HttpPost("getuserbyjwt")]
@@ -102,8 +105,10 @@ namespace BSPracaInzynierska.Server.Controllers
 
                 if(jwtSecurityToken != null && jwtSecurityToken.Header.Alg.Equals(SecurityAlgorithms.HmacSha512Signature, StringComparison.InvariantCultureIgnoreCase))
                 {
+                    var user = new User { Username = "QQQ", Email = "qq", Id = 1, Role = "Admin" };
                     var userId = principle.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-                    return await GetUserById(Convert.ToInt64(userId));
+                    //return await GetUserById(Convert.ToInt64(userId));
+                    return user;
                 }
             }
             catch(Exception ex)

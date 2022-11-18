@@ -37,10 +37,11 @@
 
     public async Task LoginUser()
     {
+
         try
         {
             var token = await loginService.Login(userName, userPassword);
-            await localStorage.SetItemAsync("jwt_token", token);
+            await localStorage.SetItemAsync("jwt_token", token.Token);
             navigationManager.NavigateTo("/", true);
         }
         catch(System.Net.Http.HttpRequestException ex)

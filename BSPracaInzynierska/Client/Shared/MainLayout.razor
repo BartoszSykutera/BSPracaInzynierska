@@ -1,0 +1,48 @@
+﻿@inherits LayoutComponentBase
+@inject NavigationManager navigationManager
+@inject HttpClient http
+@inject Blazored.LocalStorage.ILocalStorageService localStorage
+
+<div class="page">
+    <div class="sidebar">
+        <NavMenu />
+    </div>
+
+    <main>
+        <AuthorizeView>
+            <Authorized>
+                <div class="top-row px-4">
+                    <h4><b>No siema kurwo</b></h4>
+                    <button class="btn btn-danger" @onclick="Logout">Logout</button>
+                </div>
+            </Authorized>
+            <NotAuthorized>
+                <div class="top-row px-4">
+                    <button class="btn btn-danger" @onclick="Login">Logout</button>
+                </div>
+            </NotAuthorized>
+        </AuthorizeView>
+
+
+        <div class="top-row px-4">
+            <a href="https://docs.microsoft.com/aspnet/" target="_blank">About</a>
+        </div>
+
+        <article class="content px-4">
+            @Body
+        </article>
+    </main>
+</div>
+
+@code{
+    private async void Logout()
+    {
+        await localStorage.RemoveItemAsync("jwt_token");
+        navigationManager.NavigateTo("/login", true);
+    }
+
+    private void Login()
+    {
+
+    }
+}

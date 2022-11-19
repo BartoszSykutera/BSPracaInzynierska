@@ -53,10 +53,27 @@ namespace BSPracaInzynierska.Server.Controllers
         public async Task<ActionResult> Register(UserLogs userLogs)
         {
             CreatePasswordHash(userLogs.Password, out byte[] hash, out byte[] salt);
-            var user = new User { Username = userLogs.Username, Email = userLogs.Username, PasswordHash = hash, PasswordSalt = salt, Id = 1, Role = "Admin" };
-            context.Users.Add(user);
-            await context.SaveChangesAsync();
-
+            var user = new User { Username = userLogs.Username, Email = userLogs.Username, PasswordHash = hash, PasswordSalt = salt, Role = "Admin" };
+            var song = new Song { author="dfgsdg", title="sfbfg" };
+            context.Uzytkownicy.Add(user);
+            context.Songs.Add(song);
+            try
+            {
+                var updates = await context.SaveChangesAsync();
+            }catch(Exception ex)
+            {
+                var dupa = ex;
+                Console.WriteLine(dupa.Message);
+            }
+            
+            var mapping = context.Model.FindEntityType(typeof(User));
+            string schem = mapping.GetSchema();
+            string table = mapping.GetTableName();
+            bool hasChanges = context.ChangeTracker.HasChanges();
+            
+            List<User> users = await context.Uzytkownicy.ToListAsync();
+            var song2 = new Song { Id = 3, author = "dfgsdg", title = "sfbfg" };
+            //var codsf = "dgdsfg";
             return Ok();
         }
 
@@ -121,7 +138,7 @@ namespace BSPracaInzynierska.Server.Controllers
 
         protected async Task<User> GetUserById(long userId)
         {
-            return await context.Users.Where(u => u.Id == userId).FirstOrDefaultAsync();
+            return await context.Uzytkownicy.Where(u => u.Id == userId).FirstOrDefaultAsync();
         }
         
         private string CreateToken(User user)

@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace BSPracaInzynierska.Server.Migrations
 {
     [DbContext(typeof(DataContext))]
-    [Migration("20221118010220_InitialCreate")]
-    partial class InitialCreate
+    [Migration("20221118101403_NewInitial")]
+    partial class NewInitial
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -24,6 +24,35 @@ namespace BSPracaInzynierska.Server.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder, 1L, 1);
 
+            modelBuilder.Entity("BSPracaInzynierska.Shared.Song", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+
+                    b.Property<string>("author")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("title")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Songs");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            author = "dgsdfg",
+                            title = "fgsfg"
+                        });
+                });
+
             modelBuilder.Entity("BSPracaInzynierska.Shared.User", b =>
                 {
                     b.Property<int>("Id")
@@ -33,28 +62,32 @@ namespace BSPracaInzynierska.Server.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
 
                     b.Property<string>("Email")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<byte[]>("PasswordHash")
-                        .IsRequired()
                         .HasColumnType("varbinary(max)");
 
                     b.Property<byte[]>("PasswordSalt")
-                        .IsRequired()
                         .HasColumnType("varbinary(max)");
 
                     b.Property<string>("Role")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Username")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 
-                    b.ToTable("Users");
+                    b.ToTable("Uzytkownicy");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Email = "user",
+                            Role = "Admin",
+                            Username = "user"
+                        });
                 });
 #pragma warning restore 612, 618
         }

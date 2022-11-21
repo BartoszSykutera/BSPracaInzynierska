@@ -37,19 +37,15 @@
 
     public async Task LoginUser()
     {
-
-        try
+        var token = await loginService.Login(userName, userPassword);
+        if(token.Token != string.Empty)
         {
-            var token = await loginService.Login(userName, userPassword);
             await localStorage.SetItemAsync("jwt_token", token.Token);
             navigationManager.NavigateTo("/", true);
         }
-        catch(System.Net.Http.HttpRequestException ex)
+        else
         {
-            if(ex.StatusCode == System.Net.HttpStatusCode.BadRequest)
-            {
-                navigationManager.NavigateTo("/login", true);
-            }
+            navigationManager.NavigateTo("/login", true);
         }
     }
 

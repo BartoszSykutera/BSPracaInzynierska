@@ -1,5 +1,6 @@
 ﻿using BSPracaInzynierska.Shared;
 using Microsoft.EntityFrameworkCore;
+using System.Security.Cryptography;
 
 namespace BSPracaInzynierska.Server.DB
 {
@@ -12,15 +13,23 @@ namespace BSPracaInzynierska.Server.DB
 
         public DbSet<User> Uzytkownicy { get; set; }
         public DbSet<Song> Songs { get; set; }
+        public DbSet<MusicPlaylist> MusicPlaylists { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            CreatePasswordHash("admin", out byte[] hash, out byte[] salt);
             modelBuilder.Entity<User>().HasData(
-                new User { Email="user", Id=1, PasswordHash=null, PasswordSalt=null, Role="Admin", Username="user"}
+                new User { Email="admin", PasswordHash= hash, PasswordSalt= salt, Role="Admin", Username="admin"}
                 );
-            modelBuilder.Entity<Song>().HasData(
-                new Song { Id=1, author="dgsdfg", title="fgsfg"}
-                );
+        }
+
+        private void CreatePasswordHash(string password, out byte[] hash, out byte[] salt)
+        {
+            using (var hmac = new HMACSHA512())
+            {
+                salt = hmac.Key;
+                hash = hmac.ComputeHash(System.Text.Encoding.UTF8.GetBytes(password));
+            }
         }
     }
 }

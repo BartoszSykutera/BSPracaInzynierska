@@ -23,9 +23,21 @@
 
 
 @code {
+    [CascadingParameter]
+    public Task<AuthenticationState> authenticationState { get; set; }
     private string userName = string.Empty;
     private string userPassword = string.Empty;
     private string userEmail = string.Empty;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var authState = await authenticationState;
+        var user = authState.User;
+        if (user.Identity.IsAuthenticated)
+        {
+            navigationManager.NavigateTo("/profile", true);
+        }
+    }
 
     public async Task LoginUser()
     {

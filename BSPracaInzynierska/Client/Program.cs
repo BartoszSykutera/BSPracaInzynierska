@@ -1,7 +1,11 @@
 using Blazored.LocalStorage;
+using Blazored.Modal;
 using BSPracaInzynierska.Client;
 using BSPracaInzynierska.Client.Services;
+using BSPracaInzynierska.Client.Services.PlaylistService;
 using BSPracaInzynierska.Client.Services.UserServices;
+using Google.Apis.Services;
+using Google.Apis.YouTube.v3;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
@@ -16,7 +20,9 @@ builder.Services.AddOptions();
 builder.Services.AddScoped<AuthenticationStateProvider, CustomAuthenticationStateProvider>();
 builder.Services.AddAuthorizationCore();
 builder.Services.AddBlazoredLocalStorage();
+builder.Services.AddBlazoredModal();
 builder.Services.AddScoped<IUserService,  UserService>();
 builder.Services.AddScoped<ILoginService, LoginService>();
+builder.Services.AddScoped<IPlaylistService, PlaylistService>();
 
 await builder.Build().RunAsync();

@@ -1,0 +1,49 @@
+﻿@inject IPlaylistService playlistService
+
+<div class="modal fade show" id="myModal" style="display:block; background-color: rgba(10,10,10,.8);" aria-modal="true" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Change the author or title of the song</h4>
+                <button type="button" class="close"
+                @onclick="@Cancel">
+                    &times;
+                </button>
+            </div>
+            <div class="modal-body">
+                <p>Song Title</p>
+                <input type="text" @bind-value="Title" class="form-control" aria-describedby="basic-addon2">
+                <br>
+                <p>Song Author</p>
+                <input type="text" @bind-value="Author" class="form-control" aria-describedby="basic-addon2">
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger" @onclick="@Cancel">Cancel</button>
+                <button type="button" class="btn btn-success" @onclick=@Save>Save</button>
+            </div>
+        </div>
+    </div>
+</div>
+@code {
+    [Parameter] public string videoId { get; set; } = string.Empty;
+    [Parameter] public string Title { get; set; } = string.Empty;
+    [Parameter] public string Author { get; set; } = string.Empty;
+    [Parameter] public EventCallback<bool> OnClose { get; set; }
+
+    private Task Cancel()
+    {
+        return OnClose.InvokeAsync(false);
+    }
+
+    private Task Save()
+    {
+        Song? songIndex = null;
+        songIndex = playlistService.songs.Where(s => s.YTVidoeId == videoId).FirstOrDefault();
+        if(songIndex != null)
+        {
+            playlistService.songs.Where(s => s.YTVidoeId == videoId).FirstOrDefault().Title = Title;
+            playlistService.songs.Where(s => s.YTVidoeId == videoId).FirstOrDefault().Author = Author;
+        }
+        return OnClose.InvokeAsync(true);
+    }
+}

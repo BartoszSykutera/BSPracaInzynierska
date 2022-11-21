@@ -1,0 +1,184 @@
+﻿@page "/createPlaylist"
+@inject IPlaylistService playlistService
+@inject NavigationManager navigationManager
+
+<div class="text-center">
+    <h1>Music Playlist Creator</h1>
+</div>
+
+<EditForm Model="@playlistService.musicPlaylist" OnValidSubmit="@CreatePlaylist">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col">
+            </div>
+            <div class="col-10">
+                <p style="margin-bottom:2">Playlist Name</p>
+                <InputText style="width:70%;" @bind-Value="playlistService.musicPlaylist.PlaylistName" placeholder="YouTube URL" aria-label="YouTube URL" aria-describedby="basic-addon2" />
+                <p style="margin-bottom:2">Description</p>
+                <InputTextArea  style="width:70%;" @bind-Value="playlistService.musicPlaylist.Description" placeholder="YouTube URL" aria-label="YouTube URL" aria-describedby="basic-addon2" />
+                <button class="btn btn-success" type="submit">Create Playlist</button>
+            </div>
+        </div>
+    </div>
+</EditForm>
+<br />
+<br />
+<br />
+<br />
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-7">
+            <div class="text-center">
+                <h3>Adds your songs via Youtube link</h3>
+            </div>
+            <br />
+            <div class="input-group mb-3">
+                <input type="text" @bind-value="searchURLInput" class="form-control" placeholder="YouTube URL" aria-label="YouTube URL" aria-describedby="basic-addon2">
+                <div class="input-group-append">
+                    <button class="btn btn-primary" @onclick="AddByURL" type="button">Add</button>
+                </div>
+            </div>
+
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th scope="col">#</th>
+                        <th scope="col">Title</th>
+                        <th scope="col">Author</th>
+                        <th scope="col">Youtube URL</th>
+                        <th scope="col">Actions</th>
+                    </tr>
+                </thead>
+                @foreach (var song in playlistService.songs)
+                {
+                    <tbody>
+                        <tr>
+
+                            <th scope="row">@(playlistService.songs.FindIndex(i => i.YTVidoeId == song.YTVidoeId) + 1)</th>
+                            <td>@song.Title</td>
+                            <td>@song.Author</td>
+                            <td>@song.YTVidoeId</td>
+                            <td>
+                                <div class="btn-group mr-2" role="group">
+                                    <button class="btn btn-danger" @onclick="() => DeleteEntry(song.YTVidoeId)" type="button">Delete</button>
+                                    <button class="btn btn-warning" @onclick="() => EditEntry(song.YTVidoeId, song.Title, song.Author)" type="button">Change</button>
+                                </div>
+                            </td>
+
+                        </tr>
+                    </tbody>
+                }
+            </table>
+        </div>
+        <div class="col-1">
+        </div>
+        <div class="col">
+            <div class="text-center">
+                <h3>Youtube search engine for Music</h3>
+            </div>
+
+            <div class="input-group mb-3">
+                <input type="text" @bind-value="searchVideoInput" class="form-control" placeholder="Search YouTube Video" aria-label="Search YouTube Video" aria-describedby="basic-addon2">
+                <div class="input-group-append">
+                    <button class="btn btn-outline-danger" @onclick="Search" type="button">Search</button>
+                </div>
+            </div>
+            @if (playlistService.searchedVideos.Any())
+            {
+                @foreach (var video in playlistService.searchedVideos)
+                {
+                    <div class="card mt-3 mx-auto" style="width: 70%;">
+                        <a href="https://youtube.com/watch?v=@video.YTVidoeId">
+                            <img class="card-img-top" src="@video.Picture" alt="Card image cap">
+                        </a>
+                        <div class="card-body">
+                            <p class="card-title font-weight-bold" style="font-size:20px">@video.YTVideoTitle</p>
+                            <p class="card-text" style="font-size:15px">@video.YTChanelName</p>
+                            <a class="btn btn-primary" @onclick="() => AddSongToPlaylist(video.YTVidoeId)">Dodaj</a>
+                        </div>
+                    </div>
+                }
+            }
+            else
+            {
+                <div class="text-center text-muted">
+                    No search results!
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+@if (DialogIsOpen)
+{
+    <ModalForm videoId="@videoId"
+               Title="@Title"
+               Author="@Author"
+               OnClose="@OnDialogClose">
+    </ModalForm>
+}
+
+@code {
+    string searchURLInput = string.Empty;
+    string searchVideoInput = string.Empty;
+    MusicPlaylist playlist = new MusicPlaylist();
+
+    [CascadingParameter]
+    public Task<AuthenticationState> authenticationState { get; set; }
+
+    [Parameter] public string videoId { get; set; } = string.Empty;
+    [Parameter] public string Title { get; set; } = string.Empty;
+    [Parameter] public string Author { get; set; } = string.Empty;
+    private bool DialogIsOpen = false;
+
+    async Task CreatePlaylist()
+    {
+        var authState = await authenticationState;
+        var user = authState.User;
+        if (user.Identity.IsAuthenticated)
+        {
+            var id = new Guid(user.FindFirst(ClaimTypes.NameIdentifier)?.Value);
+            await playlistService.CreatePlaylist(id);
+            navigationManager.NavigateTo("/", true);
+        }
+
+
+    }
+
+    async Task Search()
+    {
+        await playlistService.GetVideos(searchVideoInput);
+        searchVideoInput = string.Empty;
+    }
+
+    async Task AddByURL()
+    {
+        await playlistService.GetVideo(searchURLInput);
+        searchURLInput = string.Empty;
+    }
+
+    void AddSongToPlaylist(string Id)
+    {
+        playlistService.AddSongToPlaylist(Id);
+    }
+
+    void DeleteEntry(string Id)
+    {
+        playlistService.DeleteSongFromPlaylist(Id);
+    }
+
+    private void EditEntry(string id, string title, string author)
+    {
+        DialogIsOpen = true;
+        videoId = id;
+        Title = title;
+        Author = author;
+    }
+    private void OnDialogClose(bool isOk)
+    {
+        DialogIsOpen = false;
+    }
+
+}

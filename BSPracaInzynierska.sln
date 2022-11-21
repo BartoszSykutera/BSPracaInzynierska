@@ -3,11 +3,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.5.33103.201
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BSPracaInzynierska.Server", "BSPracaInzynierska\Server\BSPracaInzynierska.Server.csproj", "{40A8E41E-6059-488D-9FB0-2FE3FCB8B7B4}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BSPracaInzynierska.Server", "BSPracaInzynierska\Server\BSPracaInzynierska.Server.csproj", "{40A8E41E-6059-488D-9FB0-2FE3FCB8B7B4}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BSPracaInzynierska.Client", "BSPracaInzynierska\Client\BSPracaInzynierska.Client.csproj", "{6ADA3CA0-D678-409F-8CCE-85CEE11E39E6}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BSPracaInzynierska.Client", "BSPracaInzynierska\Client\BSPracaInzynierska.Client.csproj", "{6ADA3CA0-D678-409F-8CCE-85CEE11E39E6}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BSPracaInzynierska.Shared", "BSPracaInzynierska\Shared\BSPracaInzynierska.Shared.csproj", "{EF5D0355-0BEE-4C2A-B551-EF0DC85EFEE1}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BSPracaInzynierska.Shared", "BSPracaInzynierska\Shared\BSPracaInzynierska.Shared.csproj", "{EF5D0355-0BEE-4C2A-B551-EF0DC85EFEE1}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

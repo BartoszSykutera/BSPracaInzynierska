@@ -9,6 +9,8 @@ using BSPracaInzynierska.Shared;
 using System.Text;
 using BSPracaInzynierska.Server.DB;
 using Microsoft.EntityFrameworkCore;
+using System.Net.Http;
+using Google.Apis.YouTube.v3;
 
 namespace BSPracaInzynierska.Server.Controllers
 {
@@ -16,8 +18,6 @@ namespace BSPracaInzynierska.Server.Controllers
     [ApiController]
     public class AuthController : ControllerBase
     {
-        //public static User user = new User();
-        //public List<User> users = new List<User>();
         private readonly DataContext context;
         private readonly IConfiguration configuration;
 
@@ -27,15 +27,6 @@ namespace BSPracaInzynierska.Server.Controllers
             this.context = context;
         }
 
-        [HttpGet, Authorize]
-        public ActionResult<string> GetMe()
-        {
-            var userName = User?.Identity?.Name;
-            var userName2 = User.FindFirstValue(ClaimTypes.Name);
-            var role = User.FindFirstValue(ClaimTypes.Role);
-            return Ok(new { userName, userName2, role });
-        }
-
         [HttpPost("getcurrentuser")]
         public async Task<ActionResult<User>> GetCurrentUser()
         {
@@ -43,6 +34,8 @@ namespace BSPracaInzynierska.Server.Controllers
 
             if (User.Identity.IsAuthenticated)
             {
+                var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                currentUser.Id = new Guid(userId);
                 currentUser.Username = User.FindFirstValue(ClaimTypes.Name);
             }
 
@@ -53,50 +46,26 @@ namespace BSPracaInzynierska.Server.Controllers
         public async Task<ActionResult> Register(UserLogs userLogs)
         {
             CreatePasswordHash(userLogs.Password, out byte[] hash, out byte[] salt);
-            var user = new User { Username = userLogs.Username, Email = userLogs.Username, PasswordHash = hash, PasswordSalt = salt, Role = "Admin" };
-            var song = new Song { author="dfgsdg", title="sfbfg" };
+            var user = new User { Username = userLogs.Username, Email = userLogs.Username, PasswordHash = hash, PasswordSalt = salt };
             context.Uzytkownicy.Add(user);
-            context.Songs.Add(song);
-            try
-            {
-                var updates = await context.SaveChangesAsync();
-            }catch(Exception ex)
-            {
-                var dupa = ex;
-                Console.WriteLine(dupa.Message);
-            }
-            
-            var mapping = context.Model.FindEntityType(typeof(User));
-            string schem = mapping.GetSchema();
-            string table = mapping.GetTableName();
-            bool hasChanges = context.ChangeTracker.HasChanges();
-            
-            List<User> users = await context.Uzytkownicy.ToListAsync();
-            var song2 = new Song { Id = 3, author = "dfgsdg", title = "sfbfg" };
-            //var codsf = "dgdsfg";
+            await context.SaveChangesAsync();
+
             return Ok();
         }
 
         [HttpPost("login")]
         public async Task<ActionResult<AuthenticationToken>> Login(UserLogs userLogs)
         {
+            List<User> users = await context.Uzytkownicy.ToListAsync();
             string token = string.Empty;
-            //var user = context.Users.Where(u => u.Username == userLogs.Username).FirstOrDefault();
+            var user = context.Uzytkownicy.Where(u => u.Username == userLogs.Username).FirstOrDefault();
 
-            //if (user == null)
-            //{
-            //return BadRequest("User not found");
-            //}
-
-            //if (!VerifyPasswordHash(userLogs.Password, user.PasswordHash, user.PasswordSalt))
-            //{
-            //return BadRequest("Wrong password");
-            //}
-
-            var user = new User { Username = "QQQ", Email = "qq", Id = 1, Role = "Admin" };
+            if(user == null || !VerifyPasswordHash(userLogs.Password, user.PasswordHash, user.PasswordSalt))
+            {
+                return Ok(new AuthenticationToken() { Token = token });
+            }
 
             token = CreateToken(user);
-
             return Ok(new AuthenticationToken() { Token = token });
         }
         
@@ -122,10 +91,9 @@ namespace BSPracaInzynierska.Server.Controllers
 
                 if(jwtSecurityToken != null && jwtSecurityToken.Header.Alg.Equals(SecurityAlgorithms.HmacSha512Signature, StringComparison.InvariantCultureIgnoreCase))
                 {
-                    var user = new User { Username = "QQQ", Email = "qq", Id = 1, Role = "Admin" };
+                    //var user = new User { Username = "QQQ", Email = "qq", Role = "Admin" };
                     var userId = principle.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-                    //return await GetUserById(Convert.ToInt64(userId));
-                    return user;
+                    return await GetUserById(new Guid(userId));
                 }
             }
             catch(Exception ex)
@@ -136,7 +104,7 @@ namespace BSPracaInzynierska.Server.Controllers
             return null;
         }
 
-        protected async Task<User> GetUserById(long userId)
+        protected async Task<User> GetUserById(Guid userId)
         {
             return await context.Uzytkownicy.Where(u => u.Id == userId).FirstOrDefaultAsync();
         }

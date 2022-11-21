@@ -1,4 +1,6 @@
 using BSPracaInzynierska.Server.DB;
+using Google.Apis.Services;
+using Google.Apis.YouTube.v3;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.EntityFrameworkCore;
@@ -41,6 +43,11 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             ValidateAudience = false
         };
     });
+
+builder.Services.AddSingleton(new YouTubeService(new BaseClientService.Initializer()
+{
+    ApiKey = "AIzaSyC8f02r72AxLf3SljOilFzUcFJ1I0fTRuU"
+}));
 
 var app = builder.Build();
 

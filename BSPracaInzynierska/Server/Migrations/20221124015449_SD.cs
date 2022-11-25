@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace BSPracaInzynierska.Server.Migrations
 {
-    public partial class ChangeTables : Migration
+    public partial class SD : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -57,15 +57,14 @@ namespace BSPracaInzynierska.Server.Migrations
                     PlaylistId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     YTVideoTitle = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     YTVidoeId = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    YTChanelName = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    MusicPlaylistId = table.Column<Guid>(type: "uniqueidentifier", nullable: true)
+                    YTChanelName = table.Column<string>(type: "nvarchar(max)", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Songs", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Songs_MusicPlaylists_MusicPlaylistId",
-                        column: x => x.MusicPlaylistId,
+                        name: "FK_Songs_MusicPlaylists_PlaylistId",
+                        column: x => x.PlaylistId,
                         principalTable: "MusicPlaylists",
                         principalColumn: "Id");
                 });
@@ -73,7 +72,7 @@ namespace BSPracaInzynierska.Server.Migrations
             migrationBuilder.InsertData(
                 table: "Uzytkownicy",
                 columns: new[] { "Id", "Email", "PasswordHash", "PasswordSalt", "Role", "Username" },
-                values: new object[] { new Guid("b8efb714-9813-49d5-a9c7-fc0b129c2f47"), "admin", new byte[] { 120, 90, 211, 244, 76, 217, 46, 12, 153, 51, 116, 143, 74, 87, 146, 25, 221, 26, 8, 74, 99, 62, 25, 171, 166, 243, 117, 61, 64, 103, 134, 161, 86, 239, 131, 120, 171, 124, 203, 60, 111, 54, 225, 252, 8, 241, 180, 156, 255, 28, 113, 203, 146, 60, 71, 242, 164, 172, 51, 78, 130, 235, 161, 217 }, new byte[] { 180, 73, 148, 150, 71, 126, 218, 75, 158, 33, 124, 102, 103, 130, 21, 117, 141, 9, 37, 96, 88, 55, 55, 86, 208, 15, 0, 252, 222, 141, 12, 53, 207, 252, 17, 73, 242, 109, 168, 196, 194, 255, 63, 174, 220, 117, 83, 60, 175, 234, 136, 93, 18, 102, 239, 65, 215, 154, 245, 72, 3, 108, 20, 213, 150, 92, 123, 195, 54, 97, 83, 95, 36, 129, 80, 155, 71, 221, 185, 57, 77, 7, 174, 53, 186, 251, 32, 200, 162, 224, 37, 1, 152, 2, 191, 14, 67, 135, 39, 73, 57, 241, 53, 194, 156, 219, 123, 240, 247, 103, 150, 75, 243, 168, 98, 202, 48, 117, 37, 53, 22, 56, 80, 79, 232, 183, 213, 57 }, "Admin", "admin" });
+                values: new object[] { new Guid("c7d5f84c-eb0c-40de-aa92-17d7685e7845"), "admin", new byte[] { 198, 101, 72, 154, 221, 6, 201, 13, 214, 29, 84, 126, 64, 86, 150, 91, 240, 32, 145, 33, 31, 65, 244, 47, 190, 166, 109, 197, 6, 5, 223, 76, 225, 84, 58, 1, 111, 244, 56, 101, 240, 222, 215, 179, 114, 47, 61, 74, 121, 119, 227, 155, 150, 117, 171, 221, 229, 158, 168, 220, 102, 245, 9, 56 }, new byte[] { 121, 201, 107, 114, 53, 238, 226, 163, 54, 53, 131, 214, 179, 39, 196, 176, 151, 21, 73, 173, 104, 122, 218, 17, 62, 233, 67, 97, 14, 19, 137, 190, 205, 102, 181, 44, 227, 34, 8, 203, 43, 205, 88, 51, 210, 184, 229, 42, 28, 254, 231, 15, 170, 145, 181, 197, 227, 165, 214, 154, 246, 179, 215, 52, 93, 167, 133, 10, 177, 68, 180, 125, 67, 169, 213, 29, 158, 34, 242, 183, 86, 127, 50, 90, 2, 218, 53, 25, 166, 238, 179, 72, 10, 120, 147, 163, 194, 211, 5, 27, 27, 121, 89, 242, 199, 236, 163, 160, 116, 143, 206, 41, 144, 45, 168, 243, 148, 65, 123, 193, 253, 233, 135, 229, 212, 169, 87, 71 }, "Admin", "admin" });
 
             migrationBuilder.CreateIndex(
                 name: "IX_MusicPlaylists_UserId",
@@ -81,9 +80,9 @@ namespace BSPracaInzynierska.Server.Migrations
                 column: "UserId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Songs_MusicPlaylistId",
+                name: "IX_Songs_PlaylistId",
                 table: "Songs",
-                column: "MusicPlaylistId");
+                column: "PlaylistId");
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)

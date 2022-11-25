@@ -25,14 +25,14 @@ namespace BSPracaInzynierska.Server.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<MusicPlaylist>>> GetMusicPlaylists()
         {
-            return await _context.MusicPlaylists.ToListAsync();
+            return await _context.MusicPlaylists.Include(p => p.Songs).ToListAsync();
         }
 
         // GET: api/MusicPlaylists/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<MusicPlaylist>> GetMusicPlaylist(int id)
+        public async Task<ActionResult<MusicPlaylist>> GetMusicPlaylist(Guid id)
         {
-            var musicPlaylist = await _context.MusicPlaylists.FindAsync(id);
+            var musicPlaylist = await _context.MusicPlaylists.Include(p => p.Songs).Where(p => p.Id == id).FirstOrDefaultAsync();
 
             if (musicPlaylist == null)
             {
@@ -78,7 +78,10 @@ namespace BSPracaInzynierska.Server.Controllers
         [HttpPost]
         public async Task<ActionResult<MusicPlaylist>> PostMusicPlaylist(MusicPlaylist musicPlaylist)
         {
+            User user = _context.Uzytkownicy.Where(u => u.Id == musicPlaylist.UserId).FirstOrDefault();
+            musicPlaylist.Creator = user;
             _context.MusicPlaylists.Add(musicPlaylist);
+            _context.Songs.AddRange(musicPlaylist.Songs);
             await _context.SaveChangesAsync();
 
             return CreatedAtAction("GetMusicPlaylist", new { id = musicPlaylist.Id }, musicPlaylist);
@@ -86,14 +89,17 @@ namespace BSPracaInzynierska.Server.Controllers
 
         // DELETE: api/MusicPlaylists/5
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteMusicPlaylist(int id)
+        public async Task<IActionResult> DeleteMusicPlaylist(Guid id)
         {
-            var musicPlaylist = await _context.MusicPlaylists.FindAsync(id);
+            var musicPlaylist = _context.MusicPlaylists.Include(p => p.Songs).Where(p => p.Id == id).FirstOrDefault();
             if (musicPlaylist == null)
             {
                 return NotFound();
             }
-
+            foreach(var song in musicPlaylist.Songs)
+            {
+                _context.Songs.Remove(song);
+            }
             _context.MusicPlaylists.Remove(musicPlaylist);
             await _context.SaveChangesAsync();
 

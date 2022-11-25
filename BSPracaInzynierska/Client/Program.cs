@@ -2,6 +2,8 @@ using Blazored.LocalStorage;
 using Blazored.Modal;
 using BSPracaInzynierska.Client;
 using BSPracaInzynierska.Client.Services;
+using BSPracaInzynierska.Client.Services.GameCreatorService;
+using BSPracaInzynierska.Client.Services.GameOneServices;
 using BSPracaInzynierska.Client.Services.PlaylistService;
 using BSPracaInzynierska.Client.Services.UserServices;
 using Google.Apis.Services;
@@ -24,5 +26,8 @@ builder.Services.AddBlazoredModal();
 builder.Services.AddScoped<IUserService,  UserService>();
 builder.Services.AddScoped<ILoginService, LoginService>();
 builder.Services.AddScoped<IPlaylistService, PlaylistService>();
+builder.Services.AddScoped<IMainPageService, MainPageService>();
+builder.Services.AddScoped<IGameOneService, GameOneService>();
+builder.Services.AddScoped<IGameCreatorService, GameCreatorService>();
 
 await builder.Build().RunAsync();

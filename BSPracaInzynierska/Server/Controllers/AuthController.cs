@@ -93,20 +93,27 @@ namespace BSPracaInzynierska.Server.Controllers
                 {
                     //var user = new User { Username = "QQQ", Email = "qq", Role = "Admin" };
                     var userId = principle.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
                     return await GetUserById(new Guid(userId));
                 }
             }
             catch(Exception ex)
             {
                 Console.WriteLine(ex.Message);
-                return null;
+                return new User();
             }
-            return null;
+            return new User();
         }
 
         protected async Task<User> GetUserById(Guid userId)
         {
-            return await context.Uzytkownicy.Where(u => u.Id == userId).FirstOrDefaultAsync();
+            User user = null;
+            user = await context.Uzytkownicy.Where(u => u.Id == userId).FirstOrDefaultAsync();
+            if(user == null)
+            {
+                return new User();
+            }
+            return user;
         }
         
         private string CreateToken(User user)

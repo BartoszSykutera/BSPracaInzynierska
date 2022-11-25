@@ -59,7 +59,9 @@
                             <th scope="row">@(playlistService.songs.FindIndex(i => i.YTVidoeId == song.YTVidoeId) + 1)</th>
                             <td>@song.Title</td>
                             <td>@song.Author</td>
-                            <td>@song.YTVidoeId</td>
+                            <td>
+                                <a href="https://youtube.com/watch?v=@song.YTVidoeId" class="btn btn-outline-dark" target="_blank" rel="noopener noreferrer">Watch video</a>
+                            </td>
                             <td>
                                 <div class="btn-group mr-2" role="group">
                                     <button class="btn btn-danger" @onclick="() => DeleteEntry(song.YTVidoeId)" type="button">Delete</button>
@@ -90,7 +92,7 @@
                 @foreach (var video in playlistService.searchedVideos)
                 {
                     <div class="card mt-3 mx-auto" style="width: 70%;">
-                        <a href="https://youtube.com/watch?v=@video.YTVidoeId">
+                        <a href="https://youtube.com/watch?v=@video.YTVidoeId" target="_blank" rel="noopener noreferrer">
                             <img class="card-img-top" src="@video.Picture" alt="Card image cap">
                         </a>
                         <div class="card-body">

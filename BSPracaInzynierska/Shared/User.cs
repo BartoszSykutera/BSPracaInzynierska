@@ -14,6 +14,6 @@ namespace BSPracaInzynierska.Shared
         public byte[] PasswordHash { get; set; }
         public byte[] PasswordSalt { get; set; }
         public string Role { get; set; } = "User";
-        public ICollection<MusicPlaylist> MusicPlaylists { get; set; }
+        public virtual ICollection<MusicPlaylist>? MusicPlaylists { get; set; }
     }
 }

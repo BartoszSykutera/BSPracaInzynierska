@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
 namespace BSPracaInzynierska.Shared
@@ -17,5 +18,7 @@ namespace BSPracaInzynierska.Shared
         public string YTVideoTitle { get; set; } = string.Empty;
         public string YTVidoeId { get; set; } = string.Empty;
         public string YTChanelName { get; set; } = string.Empty;
+        [JsonIgnore]
+        public virtual MusicPlaylist? Playlist { get; set; }
     }
 }

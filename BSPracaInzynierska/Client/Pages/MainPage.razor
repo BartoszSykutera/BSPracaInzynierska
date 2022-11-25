@@ -1,0 +1,41 @@
+﻿@page "/mainpage"
+@inject NavigationManager navigationManager
+@inject IMainPageService mainService
+
+<h3>Choose your Playlist</h3>
+
+
+@foreach (var playlist in mainService.playlists)
+{
+    <div class="card" style="margin:auto; width: 20rem; text-align:center;display:inline-block;">
+        <img class="card-img-top" src="@playlist.Songs.FirstOrDefault().Picture" alt="Card image cap">
+        <div class="card-body">
+            <h5 class="card-title">@playlist.PlaylistName</h5>
+            <h6 class="card-subtitle mb-2 text-muted">jakis text</h6>
+            <p class="card-text">@playlist.Description</p>
+            <button class="btn btn-danger" @onclick="() => DeletePlaylist(playlist.Id)" type="button">Delete</button>
+            <button class="btn btn-danger" @onclick="() => PlayGameOne(playlist.Id)" type="button">Play</button>
+        </div>
+    </div>
+}
+
+
+
+@code {
+
+    protected override async Task OnInitializedAsync()
+    {
+        await mainService.GetPlaylists();
+    }
+
+    public async Task DeletePlaylist(Guid id)
+    {
+        await mainService.DeletePlaylists(id);
+        await mainService.GetPlaylists();
+    }
+    public void PlayGameOne(Guid id)
+    {
+        navigationManager.NavigateTo($"gameTypeOne/{id.ToString()}");
+    }
+
+}

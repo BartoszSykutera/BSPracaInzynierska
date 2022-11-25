@@ -1,0 +1,165 @@
+﻿@page "/gameTypeOne/{Id}"
+@inject IGameOneService gameService
+@inject IJSRuntime JsRuntime
+@implements IDisposable
+
+<h3>GameTypeOne</h3>
+
+<button class="btn btn-primary" @onclick="() => Ready(gameService.songs)" type="button">Load</button>
+
+<div class="container">
+    <table class="table text-center">
+        <tbody>
+            @foreach (var song in videoIds)
+            {
+                <tr>
+                    <th scope="row">@(@gameService.songs.IndexOf(song.song) + 1)</th>
+                    <td class="text-center">
+                        @if (isGameReady == true)
+                        {
+                            @if (song.state == false)
+                            {
+                                <button class="btn btn-primary" style="width: 15" @onclick="() => Play(song)" type="button">Play</button>
+                            }
+                            else
+                            {
+                                <button class="btn btn-primary" style="width: 15" @onclick="() => Pause(song)" type="button">Pause</button>
+                            }
+                        }
+                    </td>
+                    <td class="text-center">
+                        <div id="@song.songId"></div>
+                    </td>
+                    <td class="text-center">
+                    </td>
+                </tr>
+            }
+
+        </tbody>
+    </table>
+</div>
+@if(isTimerRunning == false)
+{
+    <button class="btn btn-primary" style="width: 15" @onclick="StartTimer" type="button">Start Timer</button>
+}
+else
+{
+    <button class="btn btn-primary" style="width: 15" @onclick="StopTimer" type="button">Stop Timer</button>
+}
+
+<p>@elapsedTime</p>
+<div>
+    adfadfa<span id="randomNumberSpan"></span>
+</div>
+
+
+@code {
+    [Parameter]
+    public string? Id { get; set; }
+    public bool isGameReady = false;
+    public class musicState
+    {
+        public Song song;
+        public string songId;
+        public bool state;
+    };
+    public List<musicState> videoIds = new List<musicState>();
+    private DotNetObjectReference<GameTypeOne>? _objRef;
+
+    //timer parameters
+    int elapsedTime = 10;
+    System.Timers.Timer timer = new System.Timers.Timer(1000);
+    bool isTimerRunning = false;
+
+    public void OnTimedEvent(Object source, System.Timers.ElapsedEventArgs e)
+    {
+        //DateTime curretTime = e.SignalTime;
+        if (elapsedTime > 0)
+        {
+            elapsedTime--;
+        }
+        else
+        {
+            timer.Enabled = false;
+            isTimerRunning = false;
+            isGameReady = false;
+        }
+
+        InvokeAsync(() =>
+        {
+            StateHasChanged();
+        });
+    }
+
+    [JSInvokable]
+    public void StartTimer()
+    {
+        //startTime = DateTime.Now;
+        timer = new System.Timers.Timer(1000);
+        timer.Elapsed += OnTimedEvent;
+        timer.AutoReset = true;
+        timer.Enabled = true;
+        isTimerRunning = true;
+    }
+    
+
+    public void StopTimer()
+    {
+        timer.Enabled = false;
+        isTimerRunning = false;
+    }
+
+    public void Dispose()
+    {
+        timer.Dispose();
+    }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        var module = await JsRuntime.InvokeAsync<IJSObjectReference>("import", "./js/MusicControl.js");
+        await BundleAndSendDotNetHelper();
+        await module.InvokeVoidAsync("initialize");
+        await gameService.GetSongs(new Guid(Id));
+        gameService.songs.ForEach(s => videoIds.Add(new musicState { song = s, songId = s.YTVidoeId, state = false }));
+    }
+
+    private async Task BundleAndSendDotNetHelper()
+    {
+        var module = await JsRuntime.InvokeAsync<IJSObjectReference>("import", "./js/MusicControl.js");
+        _objRef = DotNetObjectReference.Create(this);
+        if (JsRuntime != null)
+        {
+            await module.InvokeAsync<string>("SetDotNetHelper", _objRef);
+        }
+    }
+
+    async Task Ready(List<Song> listOfsongs)
+    {
+        var module = await JsRuntime.InvokeAsync<IJSObjectReference>("import", "./js/MusicControl.js");
+        listOfsongs.ForEach(s => module.InvokeVoidAsync("ready", s.YTVidoeId));
+        isGameReady = true;
+    }
+
+    async Task Play(musicState song)
+    {
+        musicState music = videoIds.Where(v => v.state == true).FirstOrDefault();
+        var module = await JsRuntime.InvokeAsync<IJSObjectReference>("import", "./js/MusicControl.js");
+        var index = videoIds.IndexOf(song);
+        if (music == null)
+        {
+            videoIds.Where(v => v.songId == song.songId).FirstOrDefault().state = true;
+            await module.InvokeVoidAsync("playVideo", index);
+            //StartTimer();
+        }
+
+    }
+
+    async Task Pause(musicState song)
+    {
+        var module = await JsRuntime.InvokeAsync<IJSObjectReference>("import", "./js/MusicControl.js");
+        var index = videoIds.IndexOf(song);
+        videoIds.Where(v => v.songId == song.songId).FirstOrDefault().state = false;
+        await module.InvokeVoidAsync("pauseVideo", index);
+        StopTimer();
+    }
+}

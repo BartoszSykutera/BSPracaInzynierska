@@ -83,25 +83,17 @@ namespace BSPracaInzynierska.Server.Controllers
         }
 
         // GET: api/Songs
-        [HttpGet]
-        public async Task<ActionResult<IEnumerable<Song>>> GetSongs()
-        {
-            return await _context.Songs.ToListAsync();
-        }
-
-        // GET: api/Songs/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<Song>> GetSong(int id)
+        public async Task<ActionResult<IEnumerable<Song>>> GetSongs(Guid id)
         {
-            var song = await _context.Songs.FindAsync(id);
-
-            if (song == null)
+            MusicPlaylist playlist = await _context.MusicPlaylists.Include(p => p.Songs).Where(p => p.Id == id).FirstOrDefaultAsync();
+            if (playlist == null)
             {
                 return NotFound();
             }
-
-            return song;
+            return playlist.Songs.ToList();
         }
+
 
         // PUT: api/Songs/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
@@ -143,16 +135,6 @@ namespace BSPracaInzynierska.Server.Controllers
             await _context.SaveChangesAsync();
 
             return CreatedAtAction("GetSong", new { id = song.Id }, song);
-        }
-
-        [HttpPost("postallsongs")]
-        public async Task<ActionResult> PostAllSongs(List<Song> song)
-        {
-            _context.Songs.AddRange(song);
-            await _context.SaveChangesAsync();
-            var sdfg = "sdfg";
-
-            return Ok();
         }
 
         // DELETE: api/Songs/5

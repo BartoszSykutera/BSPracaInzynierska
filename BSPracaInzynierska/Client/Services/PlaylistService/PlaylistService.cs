@@ -81,8 +81,6 @@ namespace BSPracaInzynierska.Client.Services.PlaylistService
             musicPlaylist.NumberOfTracks = songs.Count();
             musicPlaylist.Songs = songs;
             var resultPlaylist = await _httpClient.PostAsJsonAsync<MusicPlaylist>("api/MusicPlaylists", musicPlaylist);
-            var resultSongs = await _httpClient.PostAsJsonAsync<List<Song>>("api/Songs", songs);
-
         }
     }
 }

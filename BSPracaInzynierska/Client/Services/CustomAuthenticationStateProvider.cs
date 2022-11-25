@@ -19,7 +19,7 @@ namespace BSPracaInzynierska.Client.Services
         {
             User currentUser = await GetUserByJWT();
 
-            if (currentUser != null && currentUser.Username != null)
+            if (currentUser != null && currentUser.Username != string.Empty)
             {
                 var claimUsername = new Claim(ClaimTypes.Name, currentUser.Username);
                 var claimNameIdentifier = new Claim(ClaimTypes.NameIdentifier, Convert.ToString(currentUser.Id));
@@ -30,7 +30,11 @@ namespace BSPracaInzynierska.Client.Services
                 return new AuthenticationState(claimPrinciple);
             }
             else
+            {
+                await _localStorageService.RemoveItemAsync("jwt_token");
                 return new AuthenticationState(new ClaimsPrincipal(new ClaimsIdentity()));
+            }
+                
         }
 
         public async Task<User> GetUserByJWT()
@@ -47,7 +51,8 @@ namespace BSPracaInzynierska.Client.Services
             var responseStatusCode = response.StatusCode;
             var returnedUser = await response.Content.ReadFromJsonAsync<User>();
 
-            if (returnedUser != null) return await Task.FromResult(returnedUser);
+            if (returnedUser.Username != string.Empty)
+                return await Task.FromResult(returnedUser);
             else return null;
 
         }

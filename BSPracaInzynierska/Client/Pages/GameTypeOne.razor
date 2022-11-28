@@ -3,54 +3,93 @@
 @inject IJSRuntime JsRuntime
 @implements IDisposable
 
-<h3>GameTypeOne</h3>
-
-<button class="btn btn-primary" @onclick="() => Ready(gameService.songs)" type="button">Load</button>
-
-<div class="container">
-    <table class="table text-center">
-        <tbody>
-            @foreach (var song in videoIds)
-            {
-                <tr>
-                    <th scope="row">@(@gameService.songs.IndexOf(song.song) + 1)</th>
-                    <td class="text-center">
-                        @if (isGameReady == true)
-                        {
-                            @if (song.state == false)
+<div class="container mx-auto">
+    <h3>GameTypeOne</h3>
+    <h1 style="text-align: center;">Your time: @elapsedTime</h1>
+    <button class="btn btn-primary" @onclick="() => EndGame()" type="button">End Game</button>
+    @if (isGameReady == false)
+    {
+        <button class="btn btn-primary" @onclick="() => Ready(gameService.songs)" type="button">Load</button>
+    }
+    <br />
+    <br />
+    <br />
+    <div class="container">
+        <table class="table" style="width:50%;">
+            <tbody>
+                @foreach (var song in videoIds)
+                {
+                    <tr style="height: 70px;">
+                        <th scope="row" style="vertical-align: middle;">Track #@(gameService.songs.IndexOf(song.song) + 1)</th>
+                        <td style="vertical-align: middle;">
+                            @if (song.isReady == true && song.guessed == false && isTimerRunning == true)
                             {
-                                <button class="btn btn-primary" style="width: 15" @onclick="() => Play(song)" type="button">Play</button>
+                                @if (song.state == false)
+                                {
+                                    <button class="btn btn-success btn-lg" style="display: flex; align-items: center;" @onclick="() => Play(song)" type="button">
+                                        <span class="oi oi-media-play" aria-hidden="true"></span>
+                                    </button>
+                                }
+                                else
+                                {
+                                    <button class="btn btn-danger btn-lg" style="display: flex; align-items: center;" @onclick="() => Pause(song)" type="button">
+                                        <span class="oi oi-media-pause" aria-hidden="true"></span>
+                                    </button>
+                                }
+                            }
+                        </td>
+                        <td style="vertical-align: middle;">
+                            @if (song.guessed == false)
+                            {
+                                @if (song.isReady == true)
+                                {
+                                    <select @onchange="(e) => ChangeAnswer(e.Value, song.songId)">
+                                        <option value="" selected>Choose your answer...</option>
+                                        @foreach (var answers in gameService.availableAnswers)
+                                        {
+                                            <option value="@answers">@answers</option>
+                                        }
+                                    </select>
+                                }
                             }
                             else
                             {
-                                <button class="btn btn-primary" style="width: 15" @onclick="() => Pause(song)" type="button">Pause</button>
+                                <b style="font-size: 20px;">@song.song.Author - @song.song.Title</b>
                             }
-                        }
-                    </td>
-                    <td class="text-center">
-                        <div id="@song.songId"></div>
-                    </td>
-                    <td class="text-center">
-                    </td>
-                </tr>
-            }
 
-        </tbody>
-    </table>
-</div>
-@if(isTimerRunning == false)
-{
-    <button class="btn btn-primary" style="width: 15" @onclick="StartTimer" type="button">Start Timer</button>
-}
-else
-{
-    <button class="btn btn-primary" style="width: 15" @onclick="StopTimer" type="button">Stop Timer</button>
-}
+                        </td>
+                        <td style="vertical-align: middle;">
+                            @if (song.isReady == true && song.guessed == false)
+                            {
+                                <button class="btn btn-primary btn-lg" @onclick="() => GuessSong(song.songId)" type="button">Guess</button>
+                            }
+                        </td>
+                        <td style="vertical-align: middle;">
+                            @if (song.showGuessStatus == true)
+                            {
+                                @if (song.guessed == true)
+                                {
+                                    <span class="oi oi-check" style="color: #32CD32; font-size:45px;" aria-hidden="true"></span>
+                                }
+                                else
+                                {
+                                    <span class="oi oi-x" style="color: #ff1a1a; font-size:45px;" aria-hidden="true"></span>
+                                }
+                            }
+                        </td>
+                        <td style="vertical-align: middle;">
+                            <div>
+                                <div id="@song.songId"></div>
+                            </div>
+                        </td>
+                    </tr>
+                }
 
-<p>@elapsedTime</p>
-<div>
-    adfadfa<span id="randomNumberSpan"></span>
+            </tbody>
+        </table>
+    </div>
 </div>
+
 
 
 @code {
@@ -62,57 +101,19 @@ else
         public Song song;
         public string songId;
         public bool state;
+        public bool isReady;
+        public string answer = string.Empty;
+        public bool guessed;
+        public bool showGuessStatus;
     };
+    musicState currentlyPlaying;
     public List<musicState> videoIds = new List<musicState>();
     private DotNetObjectReference<GameTypeOne>? _objRef;
 
     //timer parameters
-    int elapsedTime = 10;
+    int elapsedTime = 30;
     System.Timers.Timer timer = new System.Timers.Timer(1000);
-    bool isTimerRunning = false;
-
-    public void OnTimedEvent(Object source, System.Timers.ElapsedEventArgs e)
-    {
-        //DateTime curretTime = e.SignalTime;
-        if (elapsedTime > 0)
-        {
-            elapsedTime--;
-        }
-        else
-        {
-            timer.Enabled = false;
-            isTimerRunning = false;
-            isGameReady = false;
-        }
-
-        InvokeAsync(() =>
-        {
-            StateHasChanged();
-        });
-    }
-
-    [JSInvokable]
-    public void StartTimer()
-    {
-        //startTime = DateTime.Now;
-        timer = new System.Timers.Timer(1000);
-        timer.Elapsed += OnTimedEvent;
-        timer.AutoReset = true;
-        timer.Enabled = true;
-        isTimerRunning = true;
-    }
-    
-
-    public void StopTimer()
-    {
-        timer.Enabled = false;
-        isTimerRunning = false;
-    }
-
-    public void Dispose()
-    {
-        timer.Dispose();
-    }
+    bool isTimerRunning = true;
 
     protected override async Task OnParametersSetAsync()
     {
@@ -120,7 +121,7 @@ else
         await BundleAndSendDotNetHelper();
         await module.InvokeVoidAsync("initialize");
         await gameService.GetSongs(new Guid(Id));
-        gameService.songs.ForEach(s => videoIds.Add(new musicState { song = s, songId = s.YTVidoeId, state = false }));
+        gameService.songs.ForEach(s => videoIds.Add(new musicState { song = s, songId = s.YTVidoeId, state = false, isReady = false, guessed = false, showGuessStatus = false }));
     }
 
     private async Task BundleAndSendDotNetHelper()
@@ -133,11 +134,100 @@ else
         }
     }
 
+    public void OnTimedEvent(Object source, System.Timers.ElapsedEventArgs e)
+    {
+        if (elapsedTime > 0)
+        {
+            elapsedTime--;
+        }
+        else
+        {
+            //videoIds.ForEach(v => v.isReady = false);
+            videoIds.ForEach(v => Pause(v));
+            timer.Enabled = false;
+            isTimerRunning = false;
+        }
+
+
+        InvokeAsync(() =>
+        {
+            StateHasChanged();
+        });
+    }
+
+    [JSInvokable]
+    public void StartTimer()
+    {
+        timer = new System.Timers.Timer(1000);
+        timer.Elapsed += OnTimedEvent;
+        timer.AutoReset = true;
+        timer.Enabled = true;
+        //isTimerRunning = true;
+    }
+
+
+    public void StopTimer()
+    {
+        timer.Enabled = false;
+        //isTimerRunning = false;
+    }
+
+    public void Dispose()
+    {
+        timer.Dispose();
+    }
+
+
     async Task Ready(List<Song> listOfsongs)
     {
         var module = await JsRuntime.InvokeAsync<IJSObjectReference>("import", "./js/MusicControl.js");
         listOfsongs.ForEach(s => module.InvokeVoidAsync("ready", s.YTVidoeId));
         isGameReady = true;
+        await InvokeAsync(() =>
+        {
+            StateHasChanged();
+        });
+    }
+
+    async Task EndGame()
+    {
+        videoIds.ForEach(s =>
+        {
+            if (s.guessed)
+            {
+                gameService.correctAnswers++;
+            }
+        });
+        await gameService.EndGame(elapsedTime);
+    }
+
+    [JSInvokable]
+    public void SongReady(string URL)
+    {
+        var found = URL.IndexOf("v=");
+        string vidId = URL.Substring(found + 2);
+        videoIds.Where(s => s.songId == vidId).FirstOrDefault().isReady = true;
+        StateHasChanged();
+    }
+
+    async Task ChangeAnswer(object args, string id)
+    {
+        videoIds.Where(s => s.songId == id).FirstOrDefault().answer = args.ToString();
+    }
+
+    async Task GuessSong(string id)
+    {
+        musicState music = videoIds.Where(s => s.songId == id).FirstOrDefault();
+        if (music.answer == music.song.Title)
+        {
+            videoIds.Where(s => s.songId == id).FirstOrDefault().guessed = true;
+            gameService.availableAnswers.Remove(music.answer);
+        }
+        else
+        {
+            gameService.badAnswers++;
+        }
+        videoIds.Where(s => s.songId == id).FirstOrDefault().showGuessStatus = true;
     }
 
     async Task Play(musicState song)
@@ -148,6 +238,7 @@ else
         if (music == null)
         {
             videoIds.Where(v => v.songId == song.songId).FirstOrDefault().state = true;
+            currentlyPlaying = videoIds.Where(v => v.songId == song.songId).FirstOrDefault();
             await module.InvokeVoidAsync("playVideo", index);
             //StartTimer();
         }

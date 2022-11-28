@@ -14,7 +14,6 @@ namespace BSPracaInzynierska.Shared
         public int NumberOfTracks { get; set; }
         public string Description { get; set; } = string.Empty;
         public Guid? UserId { get; set; }
-        [JsonIgnore]
         public virtual User? Creator { get; set; }
         public virtual ICollection<Song> Songs { get; set; }
 

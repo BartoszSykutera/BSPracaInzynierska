@@ -25,7 +25,7 @@ namespace BSPracaInzynierska.Server.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<MusicPlaylist>>> GetMusicPlaylists()
         {
-            return await _context.MusicPlaylists.Include(p => p.Songs).ToListAsync();
+            return await _context.MusicPlaylists.Include(p => p.Songs).Include(p => p.Creator).ToListAsync();
         }
 
         // GET: api/MusicPlaylists/5
@@ -47,30 +47,44 @@ namespace BSPracaInzynierska.Server.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> PutMusicPlaylist(Guid id, MusicPlaylist musicPlaylist)
         {
-            if (id != musicPlaylist.Id)
+            var dbPlaylist = await _context.MusicPlaylists.Include(p => p.Songs).Include(p => p.Creator).Where(p => p.Id == id).FirstOrDefaultAsync();
+            
+            if (dbPlaylist == null)
             {
-                return BadRequest();
+                return NotFound();
             }
 
-            _context.Entry(musicPlaylist).State = EntityState.Modified;
+            List<Song> dbSongList = dbPlaylist.Songs.ToList();
+            List<Song> editSongList = musicPlaylist.Songs.ToList();
 
-            try
+            _context.MusicPlaylists.Any(e => e.Id == id);
+
+            dbSongList.ForEach(s =>
             {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!MusicPlaylistExists(id))
+                if (!editSongList.Any(e => e.Id == s.Id))
                 {
-                    return NotFound();
+                    dbPlaylist.Songs.Remove(s);
+                    _context.Remove(s);
+                    return;
                 }
-                else
-                {
-                    throw;
-                }
-            }
+            });
 
-            return NoContent();
+            editSongList.ForEach(s =>
+            {
+                if (!dbSongList.Any(e => e.Id == s.Id))
+                {
+                    dbPlaylist.Songs.Add(s);
+                    _context.Add(s);
+                    return;
+                }
+            });
+
+            dbPlaylist.NumberOfTracks = musicPlaylist.NumberOfTracks;
+            dbPlaylist.PlaylistName = musicPlaylist.PlaylistName;
+            dbPlaylist.Description = musicPlaylist.Description;
+
+            await _context.SaveChangesAsync();
+            return Ok();
         }
 
         // POST: api/MusicPlaylists
@@ -96,7 +110,7 @@ namespace BSPracaInzynierska.Server.Controllers
             {
                 return NotFound();
             }
-            foreach(var song in musicPlaylist.Songs)
+            foreach (var song in musicPlaylist.Songs)
             {
                 _context.Songs.Remove(song);
             }

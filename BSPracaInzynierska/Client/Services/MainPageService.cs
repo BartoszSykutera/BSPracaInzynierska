@@ -24,7 +24,7 @@ namespace BSPracaInzynierska.Client.Services
             if(result != null)
             {
                 playlists = await result.Content.ReadFromJsonAsync<List<MusicPlaylist>>();
-                var gsd = "dfgd";
+                var dsg = "dg";
             }
         }
     }

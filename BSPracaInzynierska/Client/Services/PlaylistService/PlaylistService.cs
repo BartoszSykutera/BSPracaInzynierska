@@ -25,6 +25,17 @@ namespace BSPracaInzynierska.Client.Services.PlaylistService
         public List<Song> searchedVideos { get; set; } = new List<Song>();
         public MusicPlaylist musicPlaylist { get; set; } = new MusicPlaylist();
 
+        public async Task GetPlaylist(Guid id)
+        {
+            var resultPlaylist = await _httpClient.GetAsync($"api/MusicPlaylists/{id}");
+
+            if (resultPlaylist != null)
+            {
+                musicPlaylist = await resultPlaylist.Content.ReadFromJsonAsync<MusicPlaylist>();
+                songs = musicPlaylist.Songs.ToList();
+            }
+        }
+
         public async Task GetVideo(string input)
         {
             string id = "";
@@ -81,6 +92,14 @@ namespace BSPracaInzynierska.Client.Services.PlaylistService
             musicPlaylist.NumberOfTracks = songs.Count();
             musicPlaylist.Songs = songs;
             var resultPlaylist = await _httpClient.PostAsJsonAsync<MusicPlaylist>("api/MusicPlaylists", musicPlaylist);
+        }
+
+        public async Task UpdatePlaylist(Guid id)
+        {
+            songs.ForEach(s => s.PlaylistId = musicPlaylist.Id);
+            musicPlaylist.NumberOfTracks = songs.Count();
+            musicPlaylist.Songs = songs;
+            var resultPlaylist = await _httpClient.PutAsJsonAsync<MusicPlaylist>($"api/MusicPlaylists/{musicPlaylist.Id}", musicPlaylist);
         }
     }
 }

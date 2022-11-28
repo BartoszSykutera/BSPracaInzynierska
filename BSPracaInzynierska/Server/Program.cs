@@ -49,6 +49,12 @@ builder.Services.AddSingleton(new YouTubeService(new BaseClientService.Initializ
     ApiKey = "AIzaSyC8f02r72AxLf3SljOilFzUcFJ1I0fTRuU"
 }));
 
+builder.Services.AddCors(options =>
+{
+    options.AddDefaultPolicy(builder =>
+    builder.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
+});
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -75,6 +81,7 @@ app.UseSwaggerUI(c =>
     c.SwaggerEndpoint("v1/swagger.json", "Blzaor API V1");
 });
 
+app.UseCors();
 app.UseAuthentication();
 app.UseAuthorization();
 

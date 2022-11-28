@@ -1,4 +1,5 @@
 ﻿@page "/createPlaylist"
+@page "/editPlaylist/{Id}"
 @inject IPlaylistService playlistService
 @inject NavigationManager navigationManager
 
@@ -18,7 +19,7 @@
                 <InputText style="width:70%;" @bind-Value="playlistService.musicPlaylist.PlaylistName" placeholder="YouTube URL" aria-label="YouTube URL" aria-describedby="basic-addon2" />
                 <p style="margin-bottom:2">Description</p>
                 <InputTextArea  style="width:70%;" @bind-Value="playlistService.musicPlaylist.Description" placeholder="YouTube URL" aria-label="YouTube URL" aria-describedby="basic-addon2" />
-                <button class="btn btn-success" type="submit">Create Playlist</button>
+                <button class="btn btn-success" type="submit">@btnText</button>
             </div>
         </div>
     </div>
@@ -123,8 +124,11 @@
 }
 
 @code {
+    [Parameter]
+    public string? Id { get; set; }
     string searchURLInput = string.Empty;
     string searchVideoInput = string.Empty;
+    string btnText = string.Empty;
     MusicPlaylist playlist = new MusicPlaylist();
 
     [CascadingParameter]
@@ -135,6 +139,19 @@
     [Parameter] public string Author { get; set; } = string.Empty;
     private bool DialogIsOpen = false;
 
+    protected override async Task OnInitializedAsync()
+    {
+        btnText = Id == null ? "Create Playlist" : "Update Playlist";
+    }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        if (Id != null)
+        {
+            await playlistService.GetPlaylist(new Guid(Id));
+        }
+    }
+
     async Task CreatePlaylist()
     {
         var authState = await authenticationState;
@@ -142,11 +159,18 @@
         if (user.Identity.IsAuthenticated)
         {
             var id = new Guid(user.FindFirst(ClaimTypes.NameIdentifier)?.Value);
-            await playlistService.CreatePlaylist(id);
-            navigationManager.NavigateTo("/", true);
+            if(Id == null)
+            {
+                await playlistService.CreatePlaylist(id);
+                navigationManager.NavigateTo("/", true);
+            }
+            else
+            {
+                await playlistService.UpdatePlaylist(id);
+                navigationManager.NavigateTo("/mainpage", true);
+            }
+
         }
-
-
     }
 
     async Task Search()

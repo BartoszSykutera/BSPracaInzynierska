@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
 namespace BSPracaInzynierska.Shared
@@ -14,6 +15,7 @@ namespace BSPracaInzynierska.Shared
         public byte[] PasswordHash { get; set; }
         public byte[] PasswordSalt { get; set; }
         public string Role { get; set; } = "User";
+        [JsonIgnore]
         public virtual ICollection<MusicPlaylist>? MusicPlaylists { get; set; }
     }
 }

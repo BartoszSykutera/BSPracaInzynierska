@@ -1,21 +1,23 @@
+var player;
+const players = [];
+
 export function initialize() {
+    players.length = 0;
+    player = null;
     var tag = document.createElement('script');
 
-    tag.src = "https://www.youtube.com/iframe_api";
+    tag.src = "https://www.youtube.com/player_api";
     var firstScriptTag = document.getElementsByTagName('script')[0];
     firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
 
 }
 
-var player;
-const players = [];
-
 export function ready(newplayerid) {
     player = new YT.Player(newplayerid, {
-        height: '500',
-        width: '500',
+        height: '100',
+        width: '100',
         videoId: newplayerid,
-        playerVars: {'rel': 0, 'controls': 1},
+        playerVars: { 'rel': 0, 'controls': 1, 'start': 10 },
         events: {
             'onReady': onPlayerReady,
             'onStateChange': onPlayerStateChange
@@ -26,22 +28,21 @@ export function ready(newplayerid) {
 }
 
 export function onPlayerStateChange(event) {
-    console.log("funkcja sie wywolala");
+    console.log("wykrzyknik");
     if (event.data == YT.PlayerState.PLAYING) {
-        console.log("state cos tam");
         window.dotNetHelper.invokeMethodAsync('StartTimer');
-
+        console.log("znak zapytania?");
+        console.log(event.target.getVideoUrl());
     }
-
 }
 
 export function SetDotNetHelper(dotNetHelper) {
-    console.log("seal vi do kurwy");
     window.dotNetHelper = dotNetHelper;
 }
 
 export function onPlayerReady(event) {
-    //event.target.playVideo();
+    console.log(event.target.getVideoUrl());
+    window.dotNetHelper.invokeMethodAsync('SongReady', event.target.getVideoUrl());
 }
 
 export function playVideo(index) {
@@ -49,12 +50,11 @@ export function playVideo(index) {
 }
 
 export function pauseVideo(index) {
+    players[index].seekTo(10);
     players[index].pauseVideo();
 }
 
 export function getState(index) {
-    return player[index].getPlayerState();
+    console.log(players[index].getPlayerState());
+    return players[index].getPlayerState();
 }
-
-
-

@@ -1,4 +1,10 @@
 ﻿@page "/counter"
+@using Microsoft.AspNetCore.SignalR.Client
+@using Microsoft.AspNetCore.Authorization
+@inject Blazored.LocalStorage.ILocalStorageService localStorage
+@inject NavigationManager _navigationManager
+@inject IConfiguration _configuration
+@inject Blazored.LocalStorage.ILocalStorageService localStorage
 @attribute [Authorize]
 
 <PageTitle>Counter</PageTitle>
@@ -10,10 +16,37 @@
 <button class="btn btn-primary" @onclick="IncrementCount">Click me</button>
 
 @code {
+    [CascadingParameter]
+    public Task<AuthenticationState> authenticationState { get; set; }
+    private HubConnection hubConnection;
+    string mess = "qwer";
     private int currentCount = 0;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var jwt = await localStorage.GetItemAsStringAsync("jwt_token");
+        var authState = await authenticationState;
+        var user = authState.User;
+        if (!user.Identity.IsAuthenticated)
+        {
+            _navigationManager.NavigateTo("/", true);
+        }
+        //string baseAddress = _configuration["BaseAddress"];
+        hubConnection = new HubConnectionBuilder().WithUrl("https://localhost:7069/gamehub").Build();
+
+        hubConnection.On<string>("Receive", (mess) =>
+        {
+            currentCount++;
+            StateHasChanged();
+        });
+
+        await hubConnection.StartAsync();
+        hubConnection.SendAsync("Join", user.Identity.Name);
+    }
 
     private void IncrementCount()
     {
-        currentCount++;
+        hubConnection.SendAsync("SendMessage", "admin", "user");
+        //currentCount++;
     }
 }

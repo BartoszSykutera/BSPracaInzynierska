@@ -126,6 +126,8 @@ namespace BSPracaInzynierska.Server.Controllers
                 new Claim(ClaimTypes.Role, user.Role)
             };
 
+            var claimIdentity = new ClaimsIdentity(claims);
+
             var key = new SymmetricSecurityKey(System.Text.Encoding.UTF8.GetBytes(
                 configuration.GetSection("AppSettings:Token").Value));
 

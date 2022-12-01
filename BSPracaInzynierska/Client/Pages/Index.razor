@@ -1,4 +1,6 @@
 ﻿@page "/"
+@implements IDisposable
+@inject IJSRuntime JsRuntime
 
 <PageTitle>Index</PageTitle>
 
@@ -7,9 +9,71 @@
 Welcome to your new app.
 
 
-
-
-
+<div class="container mx-auto">
+    <div class="progress">
+        <div class="progress-bar bg-warning" role="progressbar" style="width: @val" aria-valuenow="@valw" aria-valuemin="0" aria-valuemax="100"></div>
+    </div>
+</div>
+<a class="btn btn-primary" @onclick="StartTimer">Dodaj</a>
+<a class="btn btn-primary" @onclick="StopTimer">Dodaj</a>
+<p>@elapsedTime</p>
 @code{
+    string valw = "100";
+    string val = "100%";
+
+    //timer parameters
+    double elapsedTime = 5000;
+    TimeSpan time;
+    double qwer = 0; 
+    System.Timers.Timer timer = new System.Timers.Timer(100);
+    bool isTimerRunning = true;
+    DateTime startTime = DateTime.Now;
+
+    public void OnTimedEvent(Object source, System.Timers.ElapsedEventArgs e)
+    {
+        DateTime currentTime = e.SignalTime;
+        time = currentTime - startTime;
+        qwer = time.Seconds*1000 + time.Milliseconds;
+
+        if (elapsedTime > 0)
+        {
+            elapsedTime = Math.Floor((7000 - qwer)/7000.0 * 100);
+            valw = Convert.ToString(elapsedTime);
+            val = Convert.ToString(elapsedTime) + '%';
+        }
+        else
+        {
+            timer.Enabled = false;
+            isTimerRunning = false;
+        }
+
+        InvokeAsync(() =>
+        {
+            StateHasChanged();
+        });
+    }
+
+    [JSInvokable]
+    public void StartTimer()
+    {
+        startTime = DateTime.Now;
+        timer = new System.Timers.Timer(100);
+        timer.Elapsed += OnTimedEvent;
+        timer.AutoReset = true;
+        timer.Enabled = true;
+        //isTimerRunning = true;
+    }
+
+
+    public void StopTimer()
+    {
+        timer.Enabled = false;
+        //isTimerRunning = false;
+    }
+
+    public void Dispose()
+    {
+        timer.Dispose();
+    }    
 
 }

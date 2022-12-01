@@ -1,24 +1,49 @@
-﻿@page "/coscos/{Id}"
+﻿@page "/gameCreator/{Id}"
 @inject IGameCreatorService gameCreator
+@inject NavigationManager navigationManager
 
 
-<h1 class="font-weight-bold">Playlist:  @gameCreator.playlist.PlaylistName</h1>
-<br/>
-<h5>Description:
-    @gameCreator.playlist.Description</h5>
+<h1 class="font-weight-bold">@gameCreator.playlist.PlaylistName</h1>
+<br />
+<h5>
+    Description:
+    @gameCreator.playlist.Description
+</h5>
 <br />
 <br />
-<h4>What do you want to guess?</h4>
+<h4 class="font-weight-bold">Select you game mode:</h4>
 <select @onchange="(e) => ChangeGameType(e.Value)">
-    <option value="True" selected>Author</option>
-    <option value="False">Title</option>
+    <option value="blindGuess" selected>Blind Guess</option>
+    <option value="LightingRounds">Lighting rounds</option>
 </select>
 <br />
-<br />
-<h4>Duration of the game?</h4>
-<input style="width: 15%;" type="number" @bind-value="gameDuration" class="form-control" placeholder="time" aria-label="time" aria-describedby="basic-addon2">
+<button class="btn btn-success" @onclick="Play" type="button">Play</button>
 <br />
 <br />
+
+@if (gameType == "blindGuess")
+{
+    <h4>What do you want to guess?</h4>
+    <select @onchange="(e) => ChangeGuessType(e.Value)">
+        <option value="Author">Author</option>
+        <option value="Title" selected>Title</option>
+    </select>
+    <br />
+    <br />
+    <h4>How many songs?</h4>
+    <input max=@gameCreator.songs.Count() style="width: 15%;" type="number" @bind-value="songToGuess" class="form-control" placeholder="time" aria-label="time" aria-describedby="basic-addon2">
+    <p class="text-danger">@errorMessSong</p>
+    <br />
+    <h4>Duration of the game?</h4>
+    <input Min=@gameCreator.songs.Count() style="width: 15%;" type="number" @bind-value="gameDuration" class="form-control" placeholder="time" aria-label="time" aria-describedby="basic-addon2">
+    <br />
+    <br />
+}
+else if (gameType == "LightingRounds")
+{
+    <h4>dziala</h4>
+}
+
 <h4>List of songs:</h4>
 <table class="table  table-striped" style="width: 50%">
     <thead>
@@ -49,16 +74,40 @@
 @code {
     [Parameter]
     public string? Id { get; set; }
-    private bool? gameType { get; set; }
+    private string? gameGuess { get; set; }
     private int? gameDuration { get; set; } = 30;
+    private int? songToGuess { get; set; }
+    private string? errorMessSong { get; set; }
+    private string? gameType { get; set; } = "blindGuess";
 
     protected override async Task OnParametersSetAsync()
     {
         await gameCreator.GetSongs(new Guid(Id));
+        songToGuess = gameCreator.songs.Count();
+        gameGuess = "Title";
     }
+    void ChangeGuessType(object args)
+    {
+        gameGuess = args.ToString();
+    }
+
     void ChangeGameType(object args)
     {
-        bool.TryParse(args.ToString(), out var result);
-        gameCreator.game.type = result;
+        errorMessSong = null;
+        gameType = args.ToString();
+        StateHasChanged();
+    }
+
+    void Play()
+    {
+        if (songToGuess <= gameCreator.songs.Count())
+        {
+            navigationManager.NavigateTo($"{gameType}/{Id}/{gameGuess}/{gameDuration.ToString()}/{songToGuess.ToString()}");
+        }
+        else
+        {
+            errorMessSong = "Wrong number of songs";
+        }
+
     }
 }

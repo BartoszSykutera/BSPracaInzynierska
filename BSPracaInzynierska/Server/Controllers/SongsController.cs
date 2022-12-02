@@ -26,7 +26,7 @@ namespace BSPracaInzynierska.Server.Controllers
         }
 
         [HttpPost("getplaylistbyurl")]
-        public async Task<ActionResult<Song>> GetPlaylistByURL([FromBody] string input)
+        public async Task<ActionResult<List<Song>>> GetPlaylistByURL([FromBody] string input)
         {
             List<Song> searchedVideo = new List<Song>();
             string nextPageToken = "";
@@ -43,14 +43,14 @@ namespace BSPracaInzynierska.Server.Controllers
                     Title = CreateTitleAuthor(video.Snippet.Title, video.Snippet.ChannelTitle)[1],
                     Picture = video.Snippet.Thumbnails.Medium.Url,
                     YTVideoTitle = video.Snippet.Title,
-                    YTVidoeId = video.Id,
+                    YTVidoeId = video.Snippet.ResourceId.VideoId,
                     YTChanelName = video.Snippet.ChannelTitle
                 }));
                 nextPageToken = playlistResponse.NextPageToken;
 
             } while (nextPageToken != null);
             
-            return Ok(searchedVideo.First());
+            return Ok(searchedVideo);
         }
 
         [HttpPost("getvideobyurl")]

@@ -59,20 +59,18 @@ namespace BSPracaInzynierska.Client.Services.PlaylistService
         public async Task GetVideosFromPlaylist(string input)
         {
             string id = "";
-            if (input.Split('/')[input.Split('/').Length - 1].Split('=').Length > 1)
-            {
-                id = input.Split('/')[input.Split('/').Length - 1].Split('=')[1];
-            }
-            else
-            {
-                id = input.Split('/')[input.Split('/').Length - 1];
-            }
+            string[] subs = input.Split("list=");
+            id = subs[1];
 
             var result = await _httpClient.PostAsJsonAsync<string>("api/Songs/getplaylistbyurl", id);
-            Song? searchedSong = await result.Content.ReadFromJsonAsync<Song>();
-            if (searchedSong != null)
+            List<Song>? searchedSongs = await result.Content.ReadFromJsonAsync<List<Song>>();
+            if (searchedSongs.Count() > 0)
             {
-                songs.Insert(0, searchedSong);
+                searchedSongs.ForEach(s =>
+                {
+                    songs.Insert(0, s);
+                });
+                
             }
         }
 

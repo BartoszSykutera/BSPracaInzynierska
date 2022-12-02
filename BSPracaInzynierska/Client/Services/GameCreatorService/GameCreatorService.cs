@@ -17,7 +17,6 @@ namespace BSPracaInzynierska.Client.Services.GameCreatorService
 
         public async Task GetSongs(Guid id)
         {
-            //var resultSongs = await _httpClient.GetAsync($"api/Songs/{id}");
             var resultPlaylist = await _httpClient.GetAsync($"api/MusicPlaylists/{id}");
 
             if (resultPlaylist != null)

@@ -10,6 +10,7 @@ namespace BSPracaInzynierska.Client.Services.PlaylistService
         public Task CreatePlaylist(Guid id);
         public Task UpdatePlaylist(Guid id);
         public Task GetVideos(string input);
+        public Task GetVideosFromPlaylist(string input);
         public Task GetVideo(string input);
         public Task GetPlaylist(Guid id);
         public void AddSongToPlaylist(string id);

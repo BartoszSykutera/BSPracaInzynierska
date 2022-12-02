@@ -40,6 +40,12 @@
                 </div>
                 <br />
                 <div class="input-group mb-3">
+                    <div class="input-group-prepend">
+                        <select class="form-select" @onchange="(e) => ChangeURLType(e.Value)">
+                            <option value="True" selected>Video</option>
+                            <option value="False">Playlist</option>
+                        </select>
+                    </div>
                     <input type="text" @bind-value="searchURLInput" class="form-control" placeholder="YouTube URL" aria-label="YouTube URL" aria-describedby="basic-addon2">
                     <div class="input-group-append">
                         <button class="btn btn-outline-primary" @onclick="AddByURL" type="button">Add</button>
@@ -157,6 +163,7 @@
     string searchURLInput = string.Empty;
     string searchVideoInput = string.Empty;
     string btnText = string.Empty;
+    bool isVideoURL = true;
     MusicPlaylist playlist = new MusicPlaylist();
 
     [CascadingParameter]
@@ -209,8 +216,21 @@
 
     async Task AddByURL()
     {
-        await playlistService.GetVideo(searchURLInput);
+        if(isVideoURL == true)
+        {
+            await playlistService.GetVideo(searchURLInput);
+        }
+        else
+        {
+            await playlistService.GetVideosFromPlaylist(searchURLInput);
+        }
+
         searchURLInput = string.Empty;
+    }
+
+    void ChangeURLType(object args)
+    {
+        isVideoURL = bool.Parse(args.ToString());
     }
 
     void AddSongToPlaylist(string Id)

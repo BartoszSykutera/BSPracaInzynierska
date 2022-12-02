@@ -15,10 +15,10 @@
             <div class="col">
             </div>
             <div class="col-10">
-                <p style="margin-bottom:2">Playlist Name</p>
+                <p class="font-weight-bold" style="margin-bottom:2">Playlist Name</p>
                 <InputText style="width:70%;" @bind-Value="playlistService.musicPlaylist.PlaylistName" placeholder="YouTube URL" aria-label="YouTube URL" aria-describedby="basic-addon2" />
-                <p style="margin-bottom:2">Description</p>
-                <InputTextArea  style="width:70%;" @bind-Value="playlistService.musicPlaylist.Description" placeholder="YouTube URL" aria-label="YouTube URL" aria-describedby="basic-addon2" />
+                <p class="font-weight-bold" style="margin-bottom:2">Description</p>
+                <InputTextArea style="width:70%;" @bind-Value="playlistService.musicPlaylist.Description" placeholder="YouTube URL" aria-label="YouTube URL" aria-describedby="basic-addon2" />
                 <button class="btn btn-success" type="submit">@btnText</button>
             </div>
         </div>
@@ -28,91 +28,118 @@
 <br />
 <br />
 <br />
-<div class="container-fluid">
-    <div class="row">
-        <div class="col-7">
-            <div class="text-center">
-                <h3>Adds your songs via Youtube link</h3>
-            </div>
-            <br />
-            <div class="input-group mb-3">
-                <input type="text" @bind-value="searchURLInput" class="form-control" placeholder="YouTube URL" aria-label="YouTube URL" aria-describedby="basic-addon2">
-                <div class="input-group-append">
-                    <button class="btn btn-primary" @onclick="AddByURL" type="button">Add</button>
+<div class="container mx-auto">
+    @if (YTsearchEngine == false)
+    {
+        <div class="row">
+            <div class="col-2"></div>
+            <div class="col-8">
+                <div class="text-center">
+                    <h3>Add your song via Youtube link</h3>
+                    <button class="btn btn-danger" Style="width: 150px;" @onclick="ChangeSearchType" type="button">YouTube search</button>
+                </div>
+                <br />
+                <div class="input-group mb-3">
+                    <input type="text" @bind-value="searchURLInput" class="form-control" placeholder="YouTube URL" aria-label="YouTube URL" aria-describedby="basic-addon2">
+                    <div class="input-group-append">
+                        <button class="btn btn-outline-primary" @onclick="AddByURL" type="button">Add</button>
+                    </div>
                 </div>
             </div>
-
-            <table class="table table-striped">
-                <thead>
-                    <tr>
-                        <th scope="col">#</th>
-                        <th scope="col">Title</th>
-                        <th scope="col">Author</th>
-                        <th scope="col">Youtube URL</th>
-                        <th scope="col">Actions</th>
-                    </tr>
-                </thead>
-                @foreach (var song in playlistService.songs)
-                {
-                    <tbody>
-                        <tr>
-
-                            <th scope="row">@(playlistService.songs.FindIndex(i => i.YTVidoeId == song.YTVidoeId) + 1)</th>
-                            <td>@song.Title</td>
-                            <td>@song.Author</td>
-                            <td>
-                                <a href="https://youtube.com/watch?v=@song.YTVidoeId" class="btn btn-outline-dark" target="_blank" rel="noopener noreferrer">Watch video</a>
-                            </td>
-                            <td>
-                                <div class="btn-group mr-2" role="group">
-                                    <button class="btn btn-danger" @onclick="() => DeleteEntry(song.YTVidoeId)" type="button">Delete</button>
-                                    <button class="btn btn-warning" @onclick="() => EditEntry(song.YTVidoeId, song.Title, song.Author)" type="button">Change</button>
-                                </div>
-                            </td>
-
-                        </tr>
-                    </tbody>
-                }
-            </table>
+            <div class="col-2"></div>
         </div>
-        <div class="col-1">
-        </div>
-        <div class="col">
-            <div class="text-center">
-                <h3>Youtube search engine for Music</h3>
-            </div>
-
-            <div class="input-group mb-3">
-                <input type="text" @bind-value="searchVideoInput" class="form-control" placeholder="Search YouTube Video" aria-label="Search YouTube Video" aria-describedby="basic-addon2">
-                <div class="input-group-append">
-                    <button class="btn btn-outline-danger" @onclick="Search" type="button">Search</button>
+    }
+    else
+    {
+        <div class="row">
+            <div class="col-2"></div>
+            <div class="col-8">
+                <div class="text-center">
+                    <h3>Search top 5 YouTube results</h3>
+                    <button class="btn btn-danger" Style="width: 150px;" @onclick="ChangeSearchType" type="button">Link to song</button>
+                </div>
+                <br />
+                <div class="input-group mb-3">
+                    <input type="text" @bind-value="searchVideoInput" class="form-control" placeholder="Search YouTube Video" aria-label="Search YouTube Video" aria-describedby="basic-addon2">
+                    <div class="input-group-append">
+                        <button class="btn btn-outline-danger" @onclick="Search" type="button">Search</button>
+                    </div>
                 </div>
             </div>
-            @if (playlistService.searchedVideos.Any())
-            {
+            <div class="col-2"></div>
+        </div>
+
+        @if (playlistService.searchedVideos.Any())
+        {
+            <div class="container mx-auto" style="display: flex; flex-wrap: wrap; gap: 10px;">
                 @foreach (var video in playlistService.searchedVideos)
                 {
-                    <div class="card mt-3 mx-auto" style="width: 70%;">
+                    <div class="card mt-3 mx-auto" style="margin:auto; width: 15rem;">
                         <a href="https://youtube.com/watch?v=@video.YTVidoeId" target="_blank" rel="noopener noreferrer">
                             <img class="card-img-top" src="@video.Picture" alt="Card image cap">
                         </a>
                         <div class="card-body">
-                            <p class="card-title font-weight-bold" style="font-size:20px">@video.YTVideoTitle</p>
+                            <p class="card-title font-weight-bold" style="font-size:15px">@video.YTVideoTitle</p>
                             <p class="card-text" style="font-size:15px">@video.YTChanelName</p>
-                            <a class="btn btn-primary" @onclick="() => AddSongToPlaylist(video.YTVidoeId)">Dodaj</a>
+                            @if (!playlistService.songs.Where(s => s.YTVidoeId == video.YTVidoeId).Any())
+                            {
+                                <button class="btn btn-primary" @onclick="() => AddSongToPlaylist(video.YTVidoeId)">Add to Playlist</button>
+                            }else{
+                                <button class="btn btn-primary" disabled>Already added</button>
+                            }
+                            
                         </div>
                     </div>
                 }
-            }
-            else
-            {
-                <div class="text-center text-muted">
-                    No search results!
-                </div>
-            }
-        </div>
-    </div>
+            </div>
+        }
+        else
+        {
+            <div class="text-center text-muted">
+                No search results!
+            </div>
+            <br />
+            <br />
+            <br />
+            <br />
+        }
+    }
+
+
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th scope="col">#</th>
+                <th scope="col">Title</th>
+                <th scope="col">Author</th>
+                <th scope="col">Youtube URL</th>
+                <th scope="col">Actions</th>
+            </tr>
+        </thead>
+        @foreach (var song in playlistService.songs)
+        {
+            <tbody>
+                <tr>
+
+                    <th scope="row">@(playlistService.songs.FindIndex(i => i.YTVidoeId == song.YTVidoeId) + 1)</th>
+                    <td>@song.Title</td>
+                    <td>@song.Author</td>
+                    <td>
+                        <a href="https://youtube.com/watch?v=@song.YTVidoeId" class="btn btn-outline-dark" target="_blank" rel="noopener noreferrer">Watch video</a>
+                    </td>
+                    <td>
+                        <div class="btn-group mr-2" role="group">
+                            <button class="btn btn-danger" @onclick="() => DeleteEntry(song.YTVidoeId)" type="button">Delete</button>
+                            <button class="btn btn-warning" @onclick="() => EditEntry(song.YTVidoeId, song.Title, song.Author)" type="button">Change</button>
+                        </div>
+                    </td>
+
+                </tr>
+            </tbody>
+        }
+    </table>
 </div>
+
 
 @if (DialogIsOpen)
 {
@@ -126,6 +153,7 @@
 @code {
     [Parameter]
     public string? Id { get; set; }
+    public bool YTsearchEngine = false;
     string searchURLInput = string.Empty;
     string searchVideoInput = string.Empty;
     string btnText = string.Empty;
@@ -159,7 +187,7 @@
         if (user.Identity.IsAuthenticated)
         {
             var id = new Guid(user.FindFirst(ClaimTypes.NameIdentifier)?.Value);
-            if(Id == null)
+            if (Id == null)
             {
                 await playlistService.CreatePlaylist(id);
                 navigationManager.NavigateTo("/", true);
@@ -205,6 +233,14 @@
     private void OnDialogClose(bool isOk)
     {
         DialogIsOpen = false;
+    }
+
+    public void ChangeSearchType()
+    {
+        if (YTsearchEngine == false)
+            YTsearchEngine = true;
+        else
+            YTsearchEngine = false;
     }
 
 }

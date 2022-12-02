@@ -2,74 +2,104 @@
 @inject IGameCreatorService gameCreator
 @inject NavigationManager navigationManager
 
-
-<h1 class="font-weight-bold">@gameCreator.playlist.PlaylistName</h1>
-<br />
-<h5>
-    Description:
-    @gameCreator.playlist.Description
-</h5>
-<br />
-<br />
-<h4 class="font-weight-bold">Select you game mode:</h4>
-<select @onchange="(e) => ChangeGameType(e.Value)">
-    <option value="blindGuess" selected>Blind Guess</option>
-    <option value="LightingRounds">Lighting rounds</option>
-</select>
-<br />
-<button class="btn btn-success" @onclick="Play" type="button">Play</button>
-<br />
-<br />
-
-@if (gameType == "blindGuess")
-{
-    <h4>What do you want to guess?</h4>
-    <select @onchange="(e) => ChangeGuessType(e.Value)">
-        <option value="Author">Author</option>
-        <option value="Title" selected>Title</option>
+<div>
+    <h1 class="font-weight-bold">@gameCreator.playlist.PlaylistName</h1>
+    <br />
+    <h5>
+        Description:
+        @gameCreator.playlist.Description
+    </h5>
+    <br />
+    <br />
+    <h4 class="font-weight-bold">Select you game mode:</h4>
+    <select @onchange="(e) => ChangeGameType(e.Value)">
+        <option value="blindGuess" selected>Blind Guess</option>
+        <option value="lightingRounds">Lighting rounds</option>
     </select>
     <br />
     <br />
-    <h4>How many songs?</h4>
-    <input max=@gameCreator.songs.Count() style="width: 15%;" type="number" @bind-value="songToGuess" class="form-control" placeholder="time" aria-label="time" aria-describedby="basic-addon2">
-    <p class="text-danger">@errorMessSong</p>
-    <br />
-    <h4>Duration of the game?</h4>
-    <input Min=@gameCreator.songs.Count() style="width: 15%;" type="number" @bind-value="gameDuration" class="form-control" placeholder="time" aria-label="time" aria-describedby="basic-addon2">
+    <button class="btn btn-success btn-lg" @onclick="Play" type="button">Play</button>
     <br />
     <br />
-}
-else if (gameType == "LightingRounds")
-{
-    <h4>dziala</h4>
-}
 
-<h4>List of songs:</h4>
-<table class="table  table-striped" style="width: 50%">
-    <thead>
-        <tr>
-            <th scope="col">#</th>
-            <th scope="col">Title</th>
-            <th scope="col">Author</th>
-            <th scope="col">Youtube URL</th>
-        </tr>
-    </thead>
-    @foreach (var song in gameCreator.songs)
+    @if (gameType == "blindGuess")
     {
-        <tbody>
-            <tr>
 
-                <th scope="row">@(gameCreator.songs.FindIndex(i => i.YTVidoeId == song.YTVidoeId) + 1)</th>
-                <td>@song.Title</td>
-                <td>@song.Author</td>
-                <td>
-                    <a href="https://youtube.com/watch?v=@song.YTVidoeId" class="btn btn-outline-dark" target="_blank" rel="noopener noreferrer">Watch video</a>
-                </td>
-            </tr>
-        </tbody>
+        <div class="card">
+            <div class="card-header">
+                <h2>Blind Guess Game</h2>
+            </div>
+            <div class="card-body">
+                <h4>What do you want to guess?</h4>
+                <select @onchange="(e) => ChangeGuessType(e.Value)">
+                    <option value="Author">Author</option>
+                    <option value="Title" selected>Title</option>
+                </select>
+                <br />
+                <br />
+                <h4>How many songs?</h4>
+                <input min=1 max=@gameCreator.songs.Count() style="width: 15%;" type="number" @bind-value="songToGuess" class="form-control" placeholder="time" aria-label="time" aria-describedby="basic-addon2">
+                <p class="text-danger">@errorMessSong</p>
+                <h4>Duration of the game?</h4>
+                <input Min=@gameCreator.songs.Count() style="width: 15%;" type="number" @bind-value="gameDuration" class="form-control" placeholder="time" aria-label="time" aria-describedby="basic-addon2">
+            </div>
+            <div class="card-footer">Footer</div>
+        </div>
     }
-</table>
+    else if (gameType == "lightingRounds")
+    {
+        <div class="card">
+            <div class="card-header">
+                <h2>Lighting Rounds</h2>
+            </div>
+            <div class="card-body">
+                <h4>End the round when time runs out?</h4>
+                <select @onchange="(e) => ChangeGuessType(e.Value)">
+                    <option value="F">False</option>
+                    <option value="T" selected>True</option>
+                </select>
+                <br />
+                <br />
+                <h4>How many songs?</h4>
+                <input min=1 max=@gameCreator.songs.Count() style="width: 15%;" type="number" @bind-value="songToGuess" class="form-control" placeholder="time" aria-label="time" aria-describedby="basic-addon2">
+                <p class="text-danger">@errorMessSong</p>
+                <h4>Duration of one round?</h4>
+                <input Min=1 max=10 style="width: 15%;" type="number" @bind-value="gameDuration" class="form-control" placeholder="time" aria-label="time" aria-describedby="basic-addon2">
+            </div>
+            <div class="card-footer">Footer</div>
+        </div>
 
+    }
+    <br />
+    <br />
+    <div class="container mx-auto text-center">
+        <h1 class="font-weight-bold">List of songs</h1>
+        <table class="table  table-striped" style="width: 100%">
+            <thead>
+                <tr class="table-success">
+                    <th scope="col">#</th>
+                    <th scope="col">Title</th>
+                    <th scope="col">Author</th>
+                    <th scope="col">Youtube URL</th>
+                </tr>
+            </thead>
+            @foreach (var song in gameCreator.songs)
+            {
+                <tbody>
+                    <tr>
+
+                        <th scope="row">@(gameCreator.songs.FindIndex(i => i.YTVidoeId == song.YTVidoeId) + 1)</th>
+                        <td>@song.Title</td>
+                        <td>@song.Author</td>
+                        <td>
+                            <a href="https://youtube.com/watch?v=@song.YTVidoeId" class="btn btn-outline-dark" target="_blank" rel="noopener noreferrer">Watch video</a>
+                        </td>
+                    </tr>
+                </tbody>
+            }
+        </table>
+    </div>
+</div>
 
 @code {
     [Parameter]
@@ -93,21 +123,34 @@ else if (gameType == "LightingRounds")
 
     void ChangeGameType(object args)
     {
+        songToGuess = gameCreator.songs.Count();
         errorMessSong = null;
         gameType = args.ToString();
+        if (gameType == "blindGuess")
+        {
+            gameDuration = 30;
+        }
+        else if (gameType == "lightingRounds")
+        {
+            gameDuration = 5;
+        }
         StateHasChanged();
     }
 
     void Play()
     {
-        if (songToGuess <= gameCreator.songs.Count())
+        if (songToGuess <= gameCreator.songs.Count() && songToGuess >= 0)
         {
-            navigationManager.NavigateTo($"{gameType}/{Id}/{gameGuess}/{gameDuration.ToString()}/{songToGuess.ToString()}");
+            if (gameType == "blindGuess")
+            {
+                navigationManager.NavigateTo($"{gameType}/{Id}/{gameGuess}/{gameDuration.ToString()}/{songToGuess.ToString()}");
+            }
+            else if (gameType == "lightingRounds")
+            {
+                navigationManager.NavigateTo($"{gameType}/{Id}/{gameGuess}/{gameDuration.ToString()}/{songToGuess.ToString()}");
+            }
         }
         else
-        {
             errorMessSong = "Wrong number of songs";
-        }
-
     }
 }

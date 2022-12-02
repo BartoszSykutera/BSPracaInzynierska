@@ -56,6 +56,26 @@ namespace BSPracaInzynierska.Client.Services.PlaylistService
             }
         }
 
+        public async Task GetVideosFromPlaylist(string input)
+        {
+            string id = "";
+            if (input.Split('/')[input.Split('/').Length - 1].Split('=').Length > 1)
+            {
+                id = input.Split('/')[input.Split('/').Length - 1].Split('=')[1];
+            }
+            else
+            {
+                id = input.Split('/')[input.Split('/').Length - 1];
+            }
+
+            var result = await _httpClient.PostAsJsonAsync<string>("api/Songs/getplaylistbyurl", id);
+            Song? searchedSong = await result.Content.ReadFromJsonAsync<Song>();
+            if (searchedSong != null)
+            {
+                songs.Insert(0, searchedSong);
+            }
+        }
+
         public async Task GetVideos(string input)
         {
             searchedVideos.Clear();
@@ -70,7 +90,7 @@ namespace BSPracaInzynierska.Client.Services.PlaylistService
             if(selectedSong != null)
             {
                 songs.Insert(0, selectedSong);
-                searchedVideos.Remove(selectedSong);
+                //searchedVideos.Remove(selectedSong);
             }
         }
 

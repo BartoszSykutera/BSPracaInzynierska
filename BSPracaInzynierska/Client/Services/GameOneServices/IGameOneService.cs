@@ -6,9 +6,10 @@ namespace BSPracaInzynierska.Client.Services.GameOneServices
     {
         List<Song> songs { get; set; }
         List<string> availableAnswers { get; set; }
-        int badAnswers { get; set; }
-        int correctAnswers { get; set; }
-        public Task GetSongs(Guid id);
-        public Task EndGame(int elapsedTime);
+        List<string> currentAnswers { get; set; }
+        List<GameAnswers> listOfTimes { get; set; }
+        double totalPoints { get; set; }
+        public Task GetSongs(Guid id, int songToGuess, string gameGuess);
+        public Task GetAnswers(string correctAnswer);
     }
 }

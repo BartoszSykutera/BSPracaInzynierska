@@ -25,6 +25,34 @@ namespace BSPracaInzynierska.Server.Controllers
             this.youTubeService = youTubeService;
         }
 
+        [HttpPost("getplaylistbyurl")]
+        public async Task<ActionResult<Song>> GetPlaylistByURL([FromBody] string input)
+        {
+            List<Song> searchedVideo = new List<Song>();
+            string nextPageToken = "";
+            do
+            {
+                var playlistRequest = youTubeService.PlaylistItems.List("snippet");
+                playlistRequest.PlaylistId = input;
+                if (nextPageToken != "")
+                    playlistRequest.PageToken = nextPageToken;
+                var playlistResponse = await playlistRequest.ExecuteAsync();
+                searchedVideo.AddRange(playlistResponse.Items.Select(video => new Song
+                {
+                    Author = CreateTitleAuthor(video.Snippet.Title, video.Snippet.ChannelTitle)[0],
+                    Title = CreateTitleAuthor(video.Snippet.Title, video.Snippet.ChannelTitle)[1],
+                    Picture = video.Snippet.Thumbnails.Medium.Url,
+                    YTVideoTitle = video.Snippet.Title,
+                    YTVidoeId = video.Id,
+                    YTChanelName = video.Snippet.ChannelTitle
+                }));
+                nextPageToken = playlistResponse.NextPageToken;
+
+            } while (nextPageToken != null);
+            
+            return Ok(searchedVideo.First());
+        }
+
         [HttpPost("getvideobyurl")]
         public async Task<ActionResult<Song>> GetVideoByURL([FromBody] string input)
         {

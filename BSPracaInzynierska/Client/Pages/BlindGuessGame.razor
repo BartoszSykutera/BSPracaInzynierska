@@ -1,6 +1,7 @@
 ﻿@page "/blindGuess/{Id}/{gameGuess}/{gameDuration}/{songToGuess}"
 @inject IBlindGuessService gameService
 @inject IJSRuntime JsRuntime
+@inject NavigationManager navigationManager
 @implements IDisposable
 
 <div class="container mx-auto text-center">
@@ -27,6 +28,12 @@
         <h4 style="text-align: center;">Correct answers: @gameService.correctAnswers</h4>
         <h4 style="text-align: center;">Bad answers: @gameService.badAnswers</h4>
         <h4 style="text-align: center;">Time left: @elapsedTime</h4>
+        <div class="row">
+            <div class="col-sm-12 text-center">
+                <button class="btn btn-danger btn-md center-block" Style="width: 150px;" @onclick="End">End Game</button>
+                <button class="btn btn-primary btn-md center-block" Style="width: 150px;" @onclick="PlayAgain">Play again</button>
+            </div>
+        </div>
     }
 
     <div hidden>
@@ -92,6 +99,14 @@
                                 }
                             }
                         </td>
+                        <td style="vertical-align: middle;">
+                            @if(song.isReady == true)
+                            {
+                                <p>Loading...</p>
+                            }else{
+                                <p>....................</p>
+                            }
+                        </td>
                     </tr>
                 }
 
@@ -111,7 +126,7 @@
     public string gameDuration { get; set; }
     [Parameter]
     public string songToGuess { get; set; }
-
+    public bool isPlayerReady = false;
     public bool isGameReady = false;
     public bool isGameOver = false;
     public class musicState
@@ -135,9 +150,7 @@
     protected override async Task OnParametersSetAsync()
     {
         elapsedTime = Int32.Parse(gameDuration);
-        //var module = await JsRuntime.InvokeAsync<IJSObjectReference>("import", "./js/MusicControl.js");
         await BundleAndSendDotNetHelper();
-        //await module.InvokeVoidAsync("initialize");
         await JsRuntime.InvokeVoidAsync("initialize");
         await gameService.GetSongs(new Guid(Id), Int32.Parse(songToGuess), gameGuess);
         gameService.songs.ForEach(s => videoIds.Add(new musicState { song = s, songId = s.YTVidoeId, state = false, isReady = false, guessed = false }));
@@ -200,7 +213,16 @@
     [JSInvokable]
     public void SongReady(string URL)
     {
+        //videoIds.Where(v => v.songId == currentlyPlaying.songId).FirstOrDefault().isReady = true;
         isGameReady = true;
+        StateHasChanged();
+    }
+
+    [JSInvokable]
+    public void ShowAnswers()
+    {
+
+        videoIds.Where(v => v.songId == currentlyPlaying.songId).FirstOrDefault().isReady = false;
         StateHasChanged();
     }
 
@@ -214,6 +236,7 @@
         musicState music = videoIds.Where(v => v.state == true).FirstOrDefault();
         if (music == null)
         {
+            videoIds.Where(v => v.songId == song.songId).FirstOrDefault().isReady = true;
             videoIds.Where(v => v.songId == song.songId).FirstOrDefault().state = true;
 
             if (currentIndex == videoIds.IndexOf(song))
@@ -232,7 +255,9 @@
 
     async Task Pause(musicState song)
     {
+        //isPlayerReady = false;
         videoIds.Where(v => v.songId == song.songId).FirstOrDefault().state = false;
+        //videoIds.Where(v => v.songId == song.songId).FirstOrDefault().isReady = false;
         await JsRuntime.InvokeVoidAsync("pauseVideo");
         StopTimer();
     }
@@ -275,19 +300,13 @@
         timer.Dispose();
     }
 
-        /*
-    async Task GuessSong(string id)
+    public void End()
     {
-    musicState music = videoIds.Where(s => s.songId == id).FirstOrDefault();
-    if (music.answer == music.song.Title)
+        navigationManager.NavigateTo($"gameCreator/{Id}", true);
+    }
+
+    public void PlayAgain()
     {
-    videoIds.Where(s => s.songId == id).FirstOrDefault().guessed = true;
-    gameService.availableAnswers.Remove(music.answer);
+        navigationManager.NavigateTo($"blindGuess/{Id}/{gameGuess}/{gameDuration}/{songToGuess}", true);
     }
-    else
-    {
-    gameService.badAnswers++;
-    }
-    }
-    */
 }

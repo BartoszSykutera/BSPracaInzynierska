@@ -32,10 +32,9 @@ function ready(newId) {
 }
 
 function onPlayerStateChange(event) {
-    console.log("wykrzyknik");
     if (event.data == YT.PlayerState.PLAYING) {
         window.dotNetHelper.invokeMethodAsync('StartTimer');
-        console.log("znak zapytania?");
+        window.dotNetHelper.invokeMethodAsync('ShowAnswers');
         console.log(event.target.getVideoUrl());
     }
 }

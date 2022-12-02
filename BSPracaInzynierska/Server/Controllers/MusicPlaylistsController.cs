@@ -61,22 +61,26 @@ namespace BSPracaInzynierska.Server.Controllers
 
             dbSongList.ForEach(s =>
             {
-                if (!editSongList.Any(e => e.Id == s.Id))
-                {
-                    dbPlaylist.Songs.Remove(s);
-                    _context.Remove(s);
-                    return;
-                }
+                dbPlaylist.Songs.Remove(s);
+                _context.Remove(s);
+                //if (!editSongList.Any(e => e.Id == s.Id))
+                //{
+                //dbPlaylist.Songs.Remove(s);
+                //
+                //return;
+                //}
             });
 
             editSongList.ForEach(s =>
             {
-                if (!dbSongList.Any(e => e.Id == s.Id))
-                {
-                    dbPlaylist.Songs.Add(s);
-                    _context.Add(s);
-                    return;
-                }
+                dbPlaylist.Songs.Add(s);
+                _context.Add(s);
+                //if (!dbSongList.Any(e => e.Id == s.Id))
+                //{
+                //dbPlaylist.Songs.Add(s);
+                //_context.Add(s);
+                //return;
+                //}
             });
 
             dbPlaylist.NumberOfTracks = musicPlaylist.NumberOfTracks;

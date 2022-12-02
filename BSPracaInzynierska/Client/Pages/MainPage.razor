@@ -2,28 +2,30 @@
 @inject NavigationManager navigationManager
 @inject IMainPageService mainService
 
-<h3>Choose your Playlist</h3>
 
-<div class="container" style="display: flex; flex-wrap: wrap; gap: 10px;">
-    @foreach (var playlist in mainService.playlists)
-    {
-        <div class="card" style="margin:auto; width: 15rem;">
-            <img class="card-img-top" src="@playlist.Songs.FirstOrDefault().Picture" alt="Card image cap">
-            <div class="card-body">
-                <h4 class="card-title">@playlist.PlaylistName</h4>
-                <p class="card-text">
-                    Number of Tracks: @playlist.Songs.Count()
-                    <br/>
-                    Created by: @playlist.Creator.Username
+<div class="container mx-auto">
+    <h3>Choose your Playlist</h3>
+
+    <div class="container mx-auto" style="display: flex; flex-wrap: wrap; gap: 10px;">
+        @foreach (var playlist in mainService.playlists)
+        {
+            <div class="card" style="margin:auto; width: 15rem;">
+                <img class="card-img-top" src="@playlist.Songs.FirstOrDefault().Picture" alt="Card image cap">
+                <div class="card-body">
+                    <h4 class="card-title">@playlist.PlaylistName</h4>
+                    <p class="card-text">
+                        Number of Tracks: @playlist.Songs.Count()
+                        <br />
+                        Created by: @playlist.Creator.Username
                     </p>
-                <button class="btn btn-danger" @onclick="() => DeletePlaylist(playlist.Id)" type="button">Delete</button>
-                <button class="btn btn-warning" @onclick="() => EditPlaylist(playlist.Id)" type="button">Edit</button>
-                <button class="btn btn-success" @onclick="() => PlayGameOne(playlist.Id)" type="button">Play</button>
+                    <button class="btn btn-danger" @onclick="() => DeletePlaylist(playlist.Id)" type="button">Delete</button>
+                    <button class="btn btn-warning" @onclick="() => EditPlaylist(playlist.Id)" type="button">Edit</button>
+                    <button class="btn btn-success" @onclick="() => PlayGameOne(playlist.Id)" type="button">Play</button>
+                </div>
             </div>
-        </div>
-    }
+        }
+    </div>
 </div>
-
 
 
 

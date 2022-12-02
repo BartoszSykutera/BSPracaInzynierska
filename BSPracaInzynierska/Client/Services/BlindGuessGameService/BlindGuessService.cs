@@ -24,9 +24,9 @@ namespace BSPracaInzynierska.Client.Services.BlindGuessGameService
                 List<Song> allSongs = await result.Content.ReadFromJsonAsync<List<Song>>();
                 songs = allSongs.Take(songToGuess).ToList();
                 if(gameGuess == "Author")
-                    songs.ForEach(s => availableAnswers.Add(s.Author));
+                    allSongs.ForEach(s => availableAnswers.Add(s.Author));
                 else if(gameGuess == "Title")
-                    songs.ForEach(s => availableAnswers.Add(s.Title));
+                    allSongs.ForEach(s => availableAnswers.Add(s.Title));
                 availableAnswers = availableAnswers.OrderBy(a => rand.Next()).ToList();
             }
         }

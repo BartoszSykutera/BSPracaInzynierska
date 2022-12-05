@@ -5,6 +5,7 @@ using BSPracaInzynierska.Client.Services;
 using BSPracaInzynierska.Client.Services.BlindGuessGameService;
 using BSPracaInzynierska.Client.Services.GameCreatorService;
 using BSPracaInzynierska.Client.Services.GameOneServices;
+using BSPracaInzynierska.Client.Services.MultiplayerService;
 using BSPracaInzynierska.Client.Services.PlaylistService;
 using BSPracaInzynierska.Client.Services.UserServices;
 using Microsoft.AspNetCore.Components.Authorization;
@@ -29,5 +30,6 @@ builder.Services.AddScoped<IMainPageService, MainPageService>();
 builder.Services.AddScoped<IGameOneService, GameOneService>();
 builder.Services.AddScoped<IGameCreatorService, GameCreatorService>();
 builder.Services.AddScoped<IBlindGuessService, BlindGuessService>();
+builder.Services.AddScoped<IMultiplayerService, MultiplayerService>();
 
 await builder.Build().RunAsync();

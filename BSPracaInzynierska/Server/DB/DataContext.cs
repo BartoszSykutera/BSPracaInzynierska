@@ -14,7 +14,8 @@ namespace BSPracaInzynierska.Server.DB
         public DbSet<User> Uzytkownicy { get; set; }
         public DbSet<Song> Songs { get; set; }
         public DbSet<MusicPlaylist> MusicPlaylists { get; set; }
-        public DbSet<GameTypeOne> GameTypeOne { get; set; }
+        public DbSet<MultiGame> Game { get; set; }
+        //public DbSet<GameTypeOne> GameTypeOne { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

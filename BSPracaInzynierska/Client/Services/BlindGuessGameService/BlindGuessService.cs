@@ -27,7 +27,7 @@ namespace BSPracaInzynierska.Client.Services.BlindGuessGameService
                     allSongs.ForEach(s => availableAnswers.Add(s.Author));
                 else if(gameGuess == "Title")
                     allSongs.ForEach(s => availableAnswers.Add(s.Title));
-                availableAnswers = availableAnswers.OrderBy(a => rand.Next()).ToList();
+                availableAnswers.Sort((x, y) => string.Compare(x, y)); ;
             }
         }
 

@@ -27,8 +27,6 @@ function ready(newId) {
             'onStateChange': onPlayerStateChange
         }
     });
-
-    //players.push(player);
 }
 
 function onPlayerStateChange(event) {

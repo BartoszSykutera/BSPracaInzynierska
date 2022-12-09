@@ -9,9 +9,9 @@ namespace BSPracaInzynierska.Shared
     public class GameAnswers
     {
         public Guid Id = Guid.NewGuid();
-        public double timeStamp {  get; set; }
-        public bool isCorrect { get; set; }
+        public double? timeStamp {  get; set; }
+        public bool? isCorrect { get; set; }
         public double Points { get; set; } = 0;
-        public string correctAnswer { get; set; }
+        public string? correctAnswer { get; set; }
     }
 }

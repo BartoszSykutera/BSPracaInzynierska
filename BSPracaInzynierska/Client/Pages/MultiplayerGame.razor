@@ -1,57 +1,86 @@
 ﻿@page "/multiGame/{Id}"
 @inject IMultiplayerService gameService
-@inject JSRuntime JsRuntime
+@using Microsoft.AspNetCore.SignalR.Client
+@using Microsoft.AspNetCore.Authorization
+@inject IJSRuntime JsRuntime
 @inject NavigationManager navigationManager
 @implements IDisposable
+@attribute [Authorize]
 
 <div class="container mx-auto text-center">
-    <h1 class="font-weight-bold">Lightning Rounds</h1>
+    <h1 class="font-weight-bold">Multiplayer</h1>
     <br />
     <div hidden>
         <div id="player"></div>
     </div>
-
-    <br />
-
     @if (isGameReady == false)
     {
         @if (isGameOver == false)
         {
-            <button class="btn btn-success btn-lg w-100" @onclick="() => Load(gameService.SongList[0].YTVidoeId)" type="button">Play</button>
-        }
-        else
-        {
-            <h2 class="font-weight-bold">Your total score: @gameService.totalPoints</h2>
-            <br />
+
+            @if (isStarted == true)
+            {
+                <button class="btn btn-success btn-lg w-100" @onclick="() => SongReady()" type="button">Start Playing</button>
+            }
+            @if (isGameHost == true && isStarted == false)
+            {
+                <button class="btn btn-success btn-lg w-100" @onclick="() => Load(gameService.SongList[0].YTVidoeId)" type="button">Play</button>
+            }
+            else
+            {
+                <p>Waiting for game host to start game</p>
+            }
+            <h1 class="font-weight-bold">Players</h1>
             <table class="table  table-striped" style="width: 70%; margin: auto">
                 <thead>
                     <tr class="table-danger">
-                        <th scope="col">Round</th>
-                        <th scope="col">Time</th>
-                        <th scope="col">Result</th>
-                        <th scope="col">Answer</th>
-                        <th scope="col">Points</th>
+                        <th scope="col">#</th>
+                        <th scope="col">Username</th>
                     </tr>
                 </thead>
-                @foreach (var record in gameService.listOfTimes)
+                @foreach (var user in gameService.inGameLeaderboard)
+                {
+                    <tbody>
+                        <tr>
+                            <th scope="row">@(gameService.inGameLeaderboard.FindIndex(t => t.Id == user.Id) + 1)</th>
+                            <td>@user.Player.Username</td>
+                        </tr>
+                    </tbody>
+                }
+            </table>
+
+
+        }
+        else
+        {
+            <h1 class="font-weight-bold">The winner is @gameService.inGameLeaderboard.First().Player.Username</h1>
+            <br />
+            <div class="row">
+                <div class="col-sm-12 text-center">
+                    <button class="btn btn-danger btn-md center-block" Style="width: 150px;">Quit Game</button>
+                    <button class="btn btn-primary btn-md center-block" Style="width: 150px;">Play again</button>
+                </div>
+            </div>
+            <br />
+            <br />
+            <h3 class="font-weight-bold">Game Leaderboard</h3>
+            <br />
+            <table class="table  table-striped" style="width: 50%; margin: auto">
+                <thead>
+                    <tr class="table-warning">
+                        <th scope="col">#</th>
+                        <th scope="col">Player</th>
+                        <th scope="col">Total Points</th>
+                    </tr>
+                </thead>
+                @foreach (var record in gameService.inGameLeaderboard)
                 {
                     <tbody>
                         <tr>
 
-                            <th scope="row">@(gameService.listOfTimes.FindIndex(t => t.Id == record.Id) + 1)</th>
-                            <td>@record.timeStamp</td>
+                            <th scope="row">@(gameService.inGameLeaderboard.FindIndex(t => t.Id == record.Id) + 1)</th>
                             <td>
-                                @if (record.isCorrect == true)
-                                {
-                                    <span class="oi oi-check" style="color: #32CD32; font-size:45px;" aria-hidden="true"></span>
-                                }
-                                else
-                                {
-                                    <span class="oi oi-x" style="color: #ff1a1a; font-size:45px;" aria-hidden="true"></span>
-                                }
-                            </td>
-                            <td>
-                                @record.correctAnswer
+                                @record.Player.Username
                             </td>
                             <td>
                                 @record.Points
@@ -64,64 +93,138 @@
     }
     else
     {
-        <h4 style="text-align: center;">Track @(currentIndex + 1)/@gameService.MultiGame.NumberOfTracks</h4>
-        <br />
-        @if (isRoundOver == true)
+        @if (isStarted == false)
         {
-            <button class="btn btn-warning btn-lg w-100" @onclick="() => Next()" type="button">Next</button>
-        }
-        <br />
-        <br />
-        <br />
-        @if (isPlayerReady == true)
-        {
-            <div class="container  mx-auto">
-                <div class="row">
-                    <div class="col">
-                    </div>
-                    <div class="col-8">
-                        <h1 style="text-align: center;">Time left: @time</h1>
-                        <br />
-                        <div class="progress">
-                            <div class="progress-bar bg-warning" role="progressbar" style="width: @progressValue" aria-valuemin="0" aria-valuemax="100"></div>
-                        </div>
-                        <br />
-                        <br />
-                        @foreach (var answer in answerList)
-                        {
-                            @if (answer.isDisables == false)
-                            {
-                                <button style="width:100%;" type="button" @onclick="() => Guess(answer)" class="btn btn-@answer.buttonColor btn-lg w-100">@answer.answer</button>
-                            }
-                            else
-                            {
-                                <button style="width:100%;" type="button" class="btn btn-@answer.buttonColor btn-lg w-100">@answer.answer</button>
-                            }
-
-                            <br />
-                            <br />
-                        }
-                    </div>
-                    <div class="col">
-                    </div>
-                </div>
-            </div>
+            <button class="btn btn-success btn-lg w-100" @onclick="() => StartGame()" type="button">Start Playing</button>
         }
         else
         {
-            <p>Loading...</p>
-        }
+            <h4 style="text-align: center;">Track @(currentIndex + 1)/@gameService.MultiGame.NumberOfTracks</h4>
+            <br />
+            @if (isRoundOver == true)
+            {
+                @if (isGameHost == true)
+                {
+                    <button class="btn btn-warning btn-lg w-100" @onclick="() => Next()" type="button">Next Round</button>
+                }
+                else
+                {
+                    <p>Waiting for game host to start next round</p>
+                }
+                <br />
+                <br />
+                <table class="table table-striped" style="width: 70%; margin: auto">
+                    <thead>
+                        <tr class="table-success">
+                            <th scope="col">#</th>
+                            <th scope="col">Username</th>
+                            <th scope="col">Time</th>
+                            <th scope="col">Total Points</th>
+                        </tr>
+                    </thead>
+                    @foreach (var user in gameService.inGameLeaderboard)
+                    {
+                        @if (user.isAnswered == true)
+                        {
+                            <tbody>
+                                <tr>
+                                    <th scope="row">@(gameService.inGameLeaderboard.FindIndex(t => t.Id == user.Id) + 1)</th>
+                                    <td>@user.Player.Username</td>
+                                    <td>@user.timeStamp</td>
+                                    <td>@user.Points</td>
+                                </tr>
+                            </tbody>
+                        }
 
+                    }
+                </table>
+
+            }
+            <br />
+            <br />
+            <br />
+            @if (isPlayerReady == true)
+            {
+                <div class="container  mx-auto">
+                    <div class="row">
+                        <div class="col">
+                        </div>
+                        <div class="col-8">
+                            <h1 style="text-align: center;">Time left: @time</h1>
+                            <br />
+                            <div class="progress">
+                                <div class="progress-bar bg-warning" role="progressbar" style="width: @progressValue" aria-valuemin="0" aria-valuemax="100"></div>
+                            </div>
+                            <br />
+                            <br />
+                            @foreach (var answer in answerList)
+                            {
+                                @if (answer.isDisables == false)
+                                {
+                                    <button style="width:100%;" type="button" @onclick="() => Guess(answer)" class="btn btn-@answer.buttonColor btn-lg w-100">@answer.answer</button>
+                                }
+                                else
+                                {
+                                    <button style="width:100%;" type="button" class="btn btn-@answer.buttonColor btn-lg w-100">@answer.answer</button>
+                                }
+
+                                <br />
+                                <br />
+                            }
+                        </div>
+                        <div class="col">
+                        </div>
+                    </div>
+                </div>
+            }
+            else
+            {
+                <p>Loading...</p>
+            }
+        }
     }
 </div>
 
 @code {
+
+    /*
+     * <div class="podium">
+      <div class="podium-item" style="height: 120px; background-color: #cccccc;">2</div>
+    <div class="podium-item" style="height: 150px; background-color: #ffcc00;">1</div>
+    <div class="podium-item" style="height: 90px; background-color: #99cc00;">3</div>
+      </div>
+
+      .podium {
+      display: flex;
+      justify-content: center;
+      align-items: flex-end;
+    }
+
+    .podium-item {
+      width: 100px;
+      height: 100px;
+      border: 0;
+      text-align: center;
+      line-height: 100px;
+      font-size: 20px;
+    }
+
+    .podium-item:not(:last-child) {
+      margin-right: 0px;
+    }
+     */
+
     [Parameter]
     public string? Id { get; set; }
+    [CascadingParameter]
+    public Task<AuthenticationState> authenticationState { get; set; }
+    private HubConnection hubConnection;
     public bool isGameOver = false;
     public bool isRoundOver = false;
     public bool isGameReady = false;
+    public bool isStarted = false;
     public bool isPlayerReady = false;
+    public bool isGameHost = false;
     public class answersAvailable
     {
         public string answer;
@@ -129,27 +232,91 @@
         public bool isCorrect;
         public bool isDisables = false;
     };
+    string currentUserId = string.Empty;
     Song currentlyPlaying;
     int currentIndex;
     public List<answersAvailable> answerList = new List<answersAvailable>();
     private DotNetObjectReference<MultiplayerGame>? _objRef;
 
-    //timer parameters
-    double elapsedTime = 0;
-    double gameTime = 0;
-    string time = "00.0";
-    public string progressValue = "100%";
-    System.Timers.Timer timer = new System.Timers.Timer(100);
-    bool isTimerRunning = true;
-
     protected override async Task OnParametersSetAsync()
     {
+        var authState = await authenticationState;
+        var user = authState.User;
+        currentUserId = user.FindFirst(c => c.Type.Contains("nameidentifier"))?.Value;
         currentIndex = 0;
         await BundleAndSendDotNetHelper();
         await JsRuntime.InvokeVoidAsync("initialize");
         await gameService.GetGame(new Guid(Id));
         gameTime = gameService.MultiGame.gameTime;
         elapsedTime = gameService.MultiGame.gameTime;
+        hubConnection = new HubConnectionBuilder().WithUrl("https://localhost:7069/gamehub").Build();
+
+        hubConnection.On<List<UserConnectionInfo>>("UpdatePlayerList", (playerList) =>
+        {
+            List<InGamePlayerInfo> players = new List<InGamePlayerInfo>();
+            playerList.ForEach(p =>
+            {
+                if (p.UserId.Id.ToString() == currentUserId)
+                {
+                    isGameHost = p.isHost;
+                }
+                if (gameService.inGameLeaderboard.Where(u => u.Player.Id == p.UserId.Id).FirstOrDefault() == null)
+                {
+                    gameService.inGameLeaderboard.Add(new InGamePlayerInfo { Player = p.UserId, Points = 0 });
+                }
+
+            });
+            List<InGamePlayerInfo> usersToRemove = new List<InGamePlayerInfo>();
+            gameService.inGameLeaderboard.ForEach(p =>
+            {
+                if (playerList.Where(u => u.UserId.Id == p.Player.Id).FirstOrDefault() == null)
+                {
+                    usersToRemove.Add(p);
+                }
+
+            });
+            usersToRemove.ForEach(u => gameService.inGameLeaderboard.Remove(u));
+
+            InvokeAsync(() => StateHasChanged());
+        });
+
+        hubConnection.On<InGamePlayerInfo>("UpdateLeaderboard", (playerInfo) =>
+        {
+            gameService.inGameLeaderboard.ForEach(p =>
+            {
+                if (p.Player.Id == playerInfo.Player.Id && p.Player.Id.ToString() != currentUserId)
+                {
+                    p.timeStamp = playerInfo.timeStamp;
+                    p.Points = playerInfo.Points;
+                    p.isCorrect = playerInfo.isCorrect;
+                    p.correctAnswer = playerInfo.correctAnswer;
+                    p.isAnswered = true;
+                }
+            });
+            gameService.inGameLeaderboard.Sort((a, b) => b.Points.CompareTo(a.Points));
+            StateHasChanged();
+        });
+
+        hubConnection.On("StartNewGame", () =>
+        {
+            if (isGameHost == false)
+            {
+                Load(gameService.SongList[0].YTVidoeId);
+            }
+            StateHasChanged();
+        });
+
+        hubConnection.On("StartNextRound", () =>
+        {
+            if (isGameHost == false)
+            {
+                Next();
+            }
+            StateHasChanged();
+        });
+
+        await hubConnection.StartAsync();
+        hubConnection.SendAsync("Join", currentUserId, Id);
     }
 
     private async Task BundleAndSendDotNetHelper()
@@ -169,17 +336,30 @@
         if (answer.isCorrect != true)
         {
             answerList.Where(a => a.answer == answer.answer).FirstOrDefault().buttonColor = "danger";
-            gameService.listOfTimes.Add(new GameAnswers { timeStamp = timeStamps, isCorrect = false, correctAnswer = correctAnswer });
         }
         else
         {
-            points = 100 + timeStamps * 10;
-            gameService.listOfTimes.Add(new GameAnswers { timeStamp = timeStamps, isCorrect = true, correctAnswer = correctAnswer, Points = points });
+            points = 100 + Math.Round(elapsedTime, 2) * 10;
         }
+        gameService.inGameLeaderboard.ForEach(p =>
+            {
+                if (p.Player.Id.ToString() == currentUserId)
+                {
+                    p.timeStamp = timeStamps;
+                    p.isCorrect = false;
+                    p.correctAnswer = correctAnswer;
+                    p.Points += points;
+                    p.isAnswered = true;
+                }
+            });
         answerList.ForEach(a => a.isDisables = true);
         answerList.Where(a => a.isCorrect == true).FirstOrDefault().buttonColor = "success";
+        var newUserParams = gameService.inGameLeaderboard.Where(p => p.Player.Id.ToString() == currentUserId).FirstOrDefault();
+
+        hubConnection.SendAsync("SendTimeStamp", newUserParams, Id);
 
         await JsRuntime.InvokeVoidAsync("pauseVideo");
+        //timer.Enabled = false;
         StopTimer();
         isRoundOver = true;
     }
@@ -207,8 +387,18 @@
 
     async Task Load(string songId)
     {
+        if (isGameHost == true)
+        {
+            List<User> players = new List<User>();
+            gameService.inGameLeaderboard.ForEach(p =>
+            {
+                players.Add(p.Player);
+            });
+            await hubConnection.SendAsync("StartGame", players);
+        }
         await JsRuntime.InvokeVoidAsync("ready", songId);
         currentlyPlaying = gameService.SongList.First();
+        //isStarted = true;
 
         await generateAnswers();
         await InvokeAsync(() =>
@@ -219,6 +409,16 @@
 
     async Task Next()
     {
+        if (isGameHost == true)
+        {
+            List<User> players = new List<User>();
+            gameService.inGameLeaderboard.ForEach(p =>
+            {
+                players.Add(p.Player);
+            });
+            await hubConnection.SendAsync("NextRound", players);
+        }
+        gameService.inGameLeaderboard.ForEach(p => p.isAnswered = false);
         progressValue = "100%";
         if (currentIndex < (gameService.SongList.Count() - 1))
         {
@@ -234,8 +434,6 @@
         {
             isGameOver = true;
             isGameReady = false;
-            gameService.listOfTimes.ForEach(t => gameService.totalPoints = gameService.totalPoints + t.Points);
-
         }
         isRoundOver = false;
 
@@ -257,19 +455,31 @@
     }
 
     [JSInvokable]
-    public void SongReady(string URL)
+    public void SongReady()
     {
-        if (isGameReady == false)
-        {
-            Play();
-        }
+        //if (isGameReady == false)
+        //{
+        //Play();
+        //}
         isGameReady = true;
+        //isStarted = true;
+        StateHasChanged();
+    }
+
+    public void StartGame()
+    {
+        isStarted = true;
+        Play();
         StateHasChanged();
     }
 
 
-
-
+    //Timer Configuration
+    double elapsedTime = 0;
+    double gameTime = 0;
+    string time = "00.0";
+    public string progressValue = "100%";
+    System.Timers.Timer timer = new System.Timers.Timer(100);
 
     public void OnTimedEvent(Object source, System.Timers.ElapsedEventArgs e)
     {
@@ -284,7 +494,6 @@
         {
             Pause();
             timer.Enabled = false;
-            isTimerRunning = false;
         }
 
 

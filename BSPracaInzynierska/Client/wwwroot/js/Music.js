@@ -10,13 +10,19 @@ function initialize() {
     player = null;
     var tag = document.createElement('script');
 
-    tag.src = "https://www.youtube.com/player_api";
+    tag.src = "https://www.youtube.com/iframe_api";
     var firstScriptTag = document.getElementsByTagName('script')[0];
     firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
 
 }
 
+function onYouTubeIframeAPIReady() {
+    console.log("juz");
+}
+
+
 function ready(newId) {
+    player = null;
     player = new YT.Player('player', {
         height: '360',
         width: '640',
@@ -29,8 +35,24 @@ function ready(newId) {
     });
 }
 
+function readyMulti(newId) {
+    player = null;
+    player = new YT.Player('player', {
+        height: '360',
+        width: '640',
+        videoId: newId,
+        playerVars: { 'rel': 0, 'controls': 1 },
+        events: {
+            'onReady': onPlayerReadyMulti,
+            'onStateChange': onPlayerStateChange
+        }
+    });
+}
+
 function onPlayerStateChange(event) {
+    console.log("eeeee");
     if (event.data == YT.PlayerState.PLAYING) {
+        console.log("????");
         window.dotNetHelper.invokeMethodAsync('StartTimer');
         window.dotNetHelper.invokeMethodAsync('ShowAnswers');
         console.log(event.target.getVideoUrl());
@@ -38,8 +60,13 @@ function onPlayerStateChange(event) {
 }
 
 function onPlayerReady(event) {
-    console.log(event.target.getVideoUrl());
+    console.log("readyyyy");
     window.dotNetHelper.invokeMethodAsync('SongReady', event.target.getVideoUrl());
+}
+
+function onPlayerReadyMulti(event) {
+    console.log("readyyyyMultiii");
+    //window.dotNetHelper.invokeMethodAsync('SongReady', event.target.getVideoUrl());
 }
 
 function loadNew(songId) {

@@ -11,9 +11,10 @@ namespace BSPracaInzynierska.Shared
         public Guid Id { get; set; } = Guid.NewGuid();
         public int NumberOfTracks { get; set; }
         public double gameTime { get; set; }
-        public MusicPlaylist Playlist { get; set; }
+        public Guid PlaylistId { get; set; }
+        public MusicPlaylist? Playlist { get; set; }
         public Guid UserHost {  get; set; }
-        public List<User>? Players { get; set; }
+        //public List<User>? Players { get; set; }
         public string? GameCode { get; set; }
     }
 }

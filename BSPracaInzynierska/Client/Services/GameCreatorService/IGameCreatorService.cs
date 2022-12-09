@@ -6,7 +6,8 @@ namespace BSPracaInzynierska.Client.Services.GameCreatorService
     {
         MusicPlaylist playlist { get; set; }
         List<Song> songs { get; set; }
-        GameTypeOne game {  get; set; }
+        MultiGame game {  get; set; }
         public Task GetSongs(Guid id);
+        public Task CreateMultiGame(Guid id, int gameDuration, int songToGuess, Guid userId);
     }
 }

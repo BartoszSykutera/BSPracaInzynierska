@@ -73,14 +73,12 @@ namespace BSPracaInzynierska.Client.Services.PlaylistService
                 
             }
         }
-
         public async Task GetVideos(string input)
         {
             searchedVideos.Clear();
             var result = await _httpClient.PostAsJsonAsync<string>("api/Songs/getvideos", input);
             searchedVideos = await result.Content.ReadFromJsonAsync<List<Song>>();
         }
-
         public void AddSongToPlaylist(string videoId)
         {
             Song? selectedSong = null;
@@ -88,10 +86,8 @@ namespace BSPracaInzynierska.Client.Services.PlaylistService
             if(selectedSong != null)
             {
                 songs.Insert(0, selectedSong);
-                //searchedVideos.Remove(selectedSong);
             }
         }
-
         public void DeleteSongFromPlaylist(string videoId)
         {
             Song? selectedSong = null;
@@ -99,10 +95,8 @@ namespace BSPracaInzynierska.Client.Services.PlaylistService
             if (selectedSong != null)
             {
                 songs.Remove(selectedSong);
-                //searchedVideos.Add(selectedSong);
             }
         }
-
         public async Task CreatePlaylist(Guid id)
         {
             songs.ForEach(s => s.PlaylistId = musicPlaylist.Id);

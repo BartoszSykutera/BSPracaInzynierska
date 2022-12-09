@@ -15,6 +15,7 @@
     <select @onchange="(e) => ChangeGameType(e.Value)">
         <option value="blindGuess" selected>Blind Guess</option>
         <option value="lightingRounds">Lighting rounds</option>
+        <option value="multiGame">Multiplayer</option>
     </select>
     <br />
     <br />
@@ -70,6 +71,30 @@
         </div>
 
     }
+    else if (gameType == "multiGame")
+    {
+        <div class="card">
+            <div class="card-header">
+                <h2>Multiplayer</h2>
+            </div>
+            <div class="card-body">
+                <h4>End the round when time runs out?</h4>
+                <select @onchange="(e) => ChangeGuessType(e.Value)">
+                    <option value="F">False</option>
+                    <option value="T" selected>True</option>
+                </select>
+                <br />
+                <br />
+                <h4>How many songs?</h4>
+                <input min=1 max=@gameCreator.songs.Count() style="width: 15%;" type="number" @bind-value="songToGuess" class="form-control" placeholder="time" aria-label="time" aria-describedby="basic-addon2">
+                <p class="text-danger">@errorMessSong</p>
+                <h4>Duration of one round?</h4>
+                <input Min=1 max=10 style="width: 15%;" type="number" @bind-value="gameDuration" class="form-control" placeholder="time" aria-label="time" aria-describedby="basic-addon2">
+            </div>
+            <div class="card-footer">Footer</div>
+        </div>
+
+    }
     <br />
     <br />
     <div class="container mx-auto text-center">
@@ -104,14 +129,20 @@
 @code {
     [Parameter]
     public string? Id { get; set; }
+    [CascadingParameter]
+    public Task<AuthenticationState> authenticationState { get; set; }
     private string? gameGuess { get; set; }
-    private int? gameDuration { get; set; } = 30;
-    private int? songToGuess { get; set; }
+    private int gameDuration { get; set; } = 30;
+    private int songToGuess { get; set; }
     private string? errorMessSong { get; set; }
     private string? gameType { get; set; } = "blindGuess";
+    private Guid currentUserId = Guid.Empty;
 
     protected override async Task OnParametersSetAsync()
     {
+        var authState = await authenticationState;
+        var user = authState.User;
+        currentUserId = new Guid(user.FindFirst(c => c.Type.Contains("nameidentifier"))?.Value);
         await gameCreator.GetSongs(new Guid(Id));
         songToGuess = gameCreator.songs.Count();
         gameGuess = "Title";
@@ -130,14 +161,14 @@
         {
             gameDuration = 30;
         }
-        else if (gameType == "lightingRounds")
+        else if (gameType == "lightingRounds" || gameType == "multiGame")
         {
             gameDuration = 5;
         }
         StateHasChanged();
     }
 
-    void Play()
+    async Task Play()
     {
         if (songToGuess <= gameCreator.songs.Count() && songToGuess >= 0)
         {
@@ -148,6 +179,11 @@
             else if (gameType == "lightingRounds")
             {
                 navigationManager.NavigateTo($"{gameType}/{Id}/{gameGuess}/{gameDuration.ToString()}/{songToGuess.ToString()}");
+            }
+            else if (gameType == "multiGame")
+            {
+                await gameCreator.CreateMultiGame(new Guid(Id), gameDuration, songToGuess, currentUserId);
+                navigationManager.NavigateTo($"/{gameType}/{gameCreator.game.Id}");
             }
         }
         else

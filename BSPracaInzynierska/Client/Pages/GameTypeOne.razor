@@ -7,7 +7,7 @@
 <div class="container mx-auto text-center">
     <h1 class="font-weight-bold">Lightning Rounds</h1>
     <br />
-    <div hidden>
+    <div>
         <div id="player"></div>
     </div>
     
@@ -159,6 +159,7 @@
 
     protected override async Task OnParametersSetAsync()
     {
+        isGameReady = false;
         currentIndex = 0;
         gameTime = Convert.ToDouble(gameDuration);
         elapsedTime = Convert.ToDouble(gameDuration);
@@ -222,7 +223,7 @@
 
     async Task Load(string songId)
     {
-        await JsRuntime.InvokeVoidAsync("ready", songId);
+        await JsRuntime.InvokeVoidAsync("readyLR", songId);
         currentlyPlaying = gameService.songs.First();
 
         await generateAnswers();
@@ -285,13 +286,14 @@
     }
 
     [JSInvokable]
-    public void SongReady(string URL)
+    public async Task SongReady(string URL)
     {
-        if (isGameReady == false)
-        {
-            Play();
-        }
+        //if (isGameReady == false)
+        //{
+            //Play();
+        //}
         isGameReady = true;
+        //await JsRuntime.InvokeVoidAsync("playVideo");
         StateHasChanged();
     }
 

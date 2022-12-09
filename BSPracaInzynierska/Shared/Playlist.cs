@@ -16,6 +16,8 @@ namespace BSPracaInzynierska.Shared
         public Guid? UserId { get; set; }
         public virtual User? Creator { get; set; }
         public virtual ICollection<Song> Songs { get; set; }
+        [JsonIgnore]
+        public virtual ICollection<MultiGame>? CurrentGames { get; set; }
 
     }
 }

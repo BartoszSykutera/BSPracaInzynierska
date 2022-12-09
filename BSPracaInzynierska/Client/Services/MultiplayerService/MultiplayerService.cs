@@ -12,21 +12,25 @@ namespace BSPracaInzynierska.Client.Services.MultiplayerService
         {
             _httpClient = httpClient;
         }
-        public MultiGame MultiGame {  get; set; } = new MultiGame();
-        public List<Song> SongList {  get; set; } = new List<Song>();
+        public MultiGame MultiGame { get; set; } = new MultiGame();
+        public List<Song> SongList { get; set; } = new List<Song>();
         public List<User> UserList { get; set; } = new List<User>();
         public List<string> availableAnswers { get; set; } = new List<string>();
         public List<string> currentAnswers { get; set; } = new List<string>();
-
+        public List<InGamePlayerInfo> inGameLeaderboard { get; set; } = new List<InGamePlayerInfo>();
+        public List<InGamePlayerInfo> currentListOfTimes { get; set; } = new List<InGamePlayerInfo>();
         public async Task GetGame(Guid id)
         {
+            Guid qwe = id;
             var resultGame = await _httpClient.GetAsync($"api/MultiGames/{id}");
-
+            Random rand = new Random();
             if (resultGame != null)
             {
                 MultiGame = await resultGame.Content.ReadFromJsonAsync<MultiGame>();
                 SongList = MultiGame.Playlist.Songs.ToList();
-                UserList = MultiGame.Players.ToList();
+                SongList.ForEach(s => availableAnswers.Add(s.Title));
+                availableAnswers = availableAnswers.OrderBy(a => rand.Next()).ToList();
+                var fgh = "fghfd";
             }
         }
 

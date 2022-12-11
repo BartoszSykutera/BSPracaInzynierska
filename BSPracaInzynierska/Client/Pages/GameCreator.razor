@@ -183,7 +183,7 @@
             else if (gameType == "multiGame")
             {
                 await gameCreator.CreateMultiGame(new Guid(Id), gameDuration, songToGuess, currentUserId);
-                navigationManager.NavigateTo($"/{gameType}/{gameCreator.game.Id}");
+                navigationManager.NavigateTo($"/{gameType}");
             }
         }
         else

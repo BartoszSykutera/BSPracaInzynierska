@@ -1,6 +1,7 @@
 ﻿using BSPracaInzynierska.Shared;
 using System.Net.Http;
 using System.Net.Http.Json;
+using static Google.Apis.Requests.BatchRequest;
 
 namespace BSPracaInzynierska.Client.Services
 {
@@ -11,6 +12,15 @@ namespace BSPracaInzynierska.Client.Services
             _httpClient = httpClient;
         }
         public List<MusicPlaylist> playlists { get; set; } = new List<MusicPlaylist>();
+
+        public async Task<HttpResponseMessage> JoinGame(string gameCode, Guid playerId)
+        {
+            var response = await _httpClient.GetAsync($"api/MultiGames/gameCode/{gameCode}/{playerId}");
+            var responseStatusCode = response.StatusCode;
+            var returnedMessage = await response.Content.ReadAsStringAsync();
+            var ddfg = "fdgd";
+            return response;
+        }
 
         public async Task DeletePlaylists(Guid id)
         {

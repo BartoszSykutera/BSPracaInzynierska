@@ -8,5 +8,6 @@ namespace BSPracaInzynierska.Client.Services
         List<MusicPlaylist> playlists { get; set; }
         public Task GetPlaylists();
         public Task DeletePlaylists(Guid id);
+        public Task<HttpResponseMessage> JoinGame(string gameCode, Guid playerId);
     }
 }

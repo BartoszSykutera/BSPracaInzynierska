@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace BSPracaInzynierska.Server.Migrations
 {
     [DbContext(typeof(DataContext))]
-    [Migration("20221125024947_GameTable")]
-    partial class GameTable
+    [Migration("20221211004632_GameCode8")]
+    partial class GameCode8
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -24,26 +24,32 @@ namespace BSPracaInzynierska.Server.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder, 1L, 1);
 
-            modelBuilder.Entity("BSPracaInzynierska.Shared.GameTypeOne", b =>
+            modelBuilder.Entity("BSPracaInzynierska.Shared.MultiGame", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<string>("GameCode")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<int>("NumberOfTracks")
                         .HasColumnType("int");
 
-                    b.Property<Guid?>("UserId")
+                    b.Property<Guid>("PlaylistId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<int>("points")
-                        .HasColumnType("int");
+                    b.Property<Guid>("UserHost")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<double>("gameTime")
+                        .HasColumnType("float");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("UserId");
+                    b.HasIndex("PlaylistId");
 
-                    b.ToTable("GameTypeOne");
+                    b.ToTable("Game");
                 });
 
             modelBuilder.Entity("BSPracaInzynierska.Shared.MusicPlaylist", b =>
@@ -83,9 +89,6 @@ namespace BSPracaInzynierska.Server.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<Guid?>("GameTypeOneId")
-                        .HasColumnType("uniqueidentifier");
-
                     b.Property<string>("Picture")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -113,8 +116,6 @@ namespace BSPracaInzynierska.Server.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("GameTypeOneId");
 
                     b.HasIndex("PlaylistId");
 
@@ -147,29 +148,36 @@ namespace BSPracaInzynierska.Server.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<Guid?>("currentGameId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.HasKey("Id");
+
+                    b.HasIndex("currentGameId");
 
                     b.ToTable("Uzytkownicy");
 
                     b.HasData(
                         new
                         {
-                            Id = new Guid("e6f2dfa2-a690-4ddd-9ac5-1953a0a551bf"),
+                            Id = new Guid("dd25ec7c-aa8e-4204-b5b5-a136865ce00c"),
                             Email = "admin",
-                            PasswordHash = new byte[] { 40, 26, 134, 20, 147, 67, 94, 174, 204, 217, 75, 226, 83, 154, 47, 246, 0, 165, 208, 40, 78, 33, 248, 36, 78, 247, 99, 34, 44, 82, 219, 48, 225, 193, 14, 51, 181, 100, 184, 221, 160, 37, 120, 3, 200, 237, 130, 251, 96, 196, 255, 102, 60, 49, 140, 65, 198, 62, 77, 34, 62, 130, 92, 81 },
-                            PasswordSalt = new byte[] { 82, 120, 208, 251, 182, 103, 57, 71, 247, 232, 180, 191, 43, 194, 189, 219, 4, 146, 196, 166, 191, 217, 216, 147, 222, 198, 16, 128, 96, 0, 45, 55, 145, 194, 221, 29, 115, 103, 90, 221, 82, 1, 174, 76, 104, 72, 157, 92, 176, 228, 174, 173, 238, 203, 24, 52, 51, 106, 214, 84, 71, 125, 108, 16, 255, 77, 244, 99, 11, 99, 190, 84, 231, 142, 103, 21, 241, 21, 201, 182, 224, 84, 175, 66, 138, 15, 76, 226, 23, 193, 159, 95, 247, 128, 240, 176, 107, 2, 239, 80, 153, 25, 248, 148, 196, 174, 169, 34, 213, 9, 154, 144, 173, 173, 104, 112, 193, 157, 176, 66, 72, 188, 70, 144, 17, 4, 80, 242 },
+                            PasswordHash = new byte[] { 128, 43, 230, 36, 252, 132, 173, 68, 11, 157, 61, 98, 208, 146, 170, 174, 252, 249, 209, 106, 130, 188, 127, 204, 132, 97, 15, 217, 8, 4, 108, 221, 113, 140, 38, 202, 144, 253, 14, 207, 219, 76, 48, 119, 208, 22, 203, 224, 19, 122, 253, 172, 44, 177, 148, 98, 29, 139, 125, 108, 252, 6, 106, 211 },
+                            PasswordSalt = new byte[] { 81, 39, 176, 205, 169, 247, 8, 59, 72, 71, 239, 237, 165, 186, 252, 149, 141, 86, 148, 177, 200, 89, 8, 81, 123, 62, 88, 181, 41, 60, 117, 238, 76, 162, 183, 170, 62, 195, 93, 58, 15, 90, 253, 88, 45, 17, 61, 255, 239, 198, 28, 128, 207, 73, 65, 209, 117, 148, 114, 34, 143, 246, 103, 64, 48, 186, 53, 201, 130, 136, 241, 36, 208, 220, 101, 41, 219, 7, 21, 222, 179, 66, 66, 146, 110, 80, 167, 246, 60, 91, 63, 99, 186, 186, 189, 200, 244, 108, 141, 21, 202, 239, 137, 201, 103, 104, 198, 119, 136, 71, 122, 118, 241, 145, 60, 1, 91, 165, 254, 60, 54, 4, 233, 227, 178, 240, 49, 201 },
                             Role = "Admin",
                             Username = "admin"
                         });
                 });
 
-            modelBuilder.Entity("BSPracaInzynierska.Shared.GameTypeOne", b =>
+            modelBuilder.Entity("BSPracaInzynierska.Shared.MultiGame", b =>
                 {
-                    b.HasOne("BSPracaInzynierska.Shared.User", "Player")
-                        .WithMany()
-                        .HasForeignKey("UserId");
+                    b.HasOne("BSPracaInzynierska.Shared.MusicPlaylist", "Playlist")
+                        .WithMany("CurrentGames")
+                        .HasForeignKey("PlaylistId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
-                    b.Navigation("Player");
+                    b.Navigation("Playlist");
                 });
 
             modelBuilder.Entity("BSPracaInzynierska.Shared.MusicPlaylist", b =>
@@ -183,10 +191,6 @@ namespace BSPracaInzynierska.Server.Migrations
 
             modelBuilder.Entity("BSPracaInzynierska.Shared.Song", b =>
                 {
-                    b.HasOne("BSPracaInzynierska.Shared.GameTypeOne", null)
-                        .WithMany("Songs")
-                        .HasForeignKey("GameTypeOneId");
-
                     b.HasOne("BSPracaInzynierska.Shared.MusicPlaylist", "Playlist")
                         .WithMany("Songs")
                         .HasForeignKey("PlaylistId");
@@ -194,13 +198,24 @@ namespace BSPracaInzynierska.Server.Migrations
                     b.Navigation("Playlist");
                 });
 
-            modelBuilder.Entity("BSPracaInzynierska.Shared.GameTypeOne", b =>
+            modelBuilder.Entity("BSPracaInzynierska.Shared.User", b =>
                 {
-                    b.Navigation("Songs");
+                    b.HasOne("BSPracaInzynierska.Shared.MultiGame", "CurrentGame")
+                        .WithMany("Players")
+                        .HasForeignKey("currentGameId");
+
+                    b.Navigation("CurrentGame");
+                });
+
+            modelBuilder.Entity("BSPracaInzynierska.Shared.MultiGame", b =>
+                {
+                    b.Navigation("Players");
                 });
 
             modelBuilder.Entity("BSPracaInzynierska.Shared.MusicPlaylist", b =>
                 {
+                    b.Navigation("CurrentGames");
+
                     b.Navigation("Songs");
                 });
 

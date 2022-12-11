@@ -3,6 +3,7 @@ using BSPracaInzynierska.Shared;
 using Google.Apis.YouTube.v3;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.SignalR;
+using Microsoft.EntityFrameworkCore;
 using System.Diagnostics;
 
 namespace BSPracaInzynierska.Server.Hubs
@@ -53,15 +54,15 @@ namespace BSPracaInzynierska.Server.Hubs
             {
                 newConnection = new UserConnectionInfo { UserId = newPlayer, ConnectionId = Context.ConnectionId, isReady = false, GameId = gameId, isHost = false };
             }
-            
+
             userConnectionInfos.Add(newConnection);
             List<UserConnectionInfo> users = userConnectionInfos.Where(u => u.GameId == gameId).ToList();
             foreach (var connection in userConnectionInfos)
             {
-                if(connection.GameId == gameId)
+                if (connection.GameId == gameId)
                 {
                     await Clients.Client(connection.ConnectionId).SendAsync("UpdatePlayerList", users);
-                } 
+                }
             }
         }
 
@@ -88,15 +89,51 @@ namespace BSPracaInzynierska.Server.Hubs
         public override async Task OnDisconnectedAsync(Exception exception)
         {
             var gameId = userConnectionInfos.Where(u => u.ConnectionId == Context.ConnectionId).FirstOrDefault().GameId;
+            var userConn = userConnectionInfos.Where(u => u.ConnectionId == Context.ConnectionId).FirstOrDefault();
+            var game = await _context.Game.Include(g => g.Players).Include(g => g.Playlist).ThenInclude(p => p.Songs).Where(g => g.Id == new Guid(gameId)).FirstOrDefaultAsync();
             userConnectionInfos.RemoveWhere(u => u.ConnectionId == Context.ConnectionId);
             List<UserConnectionInfo> users = userConnectionInfos.Where(u => u.GameId == gameId).ToList();
-            foreach (var connection in userConnectionInfos)
+            if (userConn.isHost == true)
             {
-                if (connection.GameId == gameId)
+                game.Players.ToList().ForEach(p =>
                 {
-                    await Clients.Client(connection.ConnectionId).SendAsync("UpdatePlayerList", users);
+                    p.currentGameId = null;
+                });
+                _context.Game.Remove(game);
+                await _context.SaveChangesAsync();
+                foreach (var connection in userConnectionInfos)
+                {
+                    if (connection.GameId == gameId)
+                    {
+                        await Clients.Client(connection.ConnectionId).SendAsync("DisconnectFromGame");
+                    }
                 }
             }
+            else if (userConn.isHost != true)
+            {
+                if (game != null)
+                {
+                    game.Players.ToList().ForEach(p =>
+                    {
+                        if (p.Id == userConn.UserId.Id)
+                        {
+                            p.currentGameId = null;
+                            game.Players.Remove(p);
+                            return;
+                        }
+                    });
+                    await _context.SaveChangesAsync();
+                    foreach (var connection in userConnectionInfos)
+                    {
+                        if (connection.GameId == gameId)
+                        {
+                            await Clients.Client(connection.ConnectionId).SendAsync("UpdatePlayerList", users);
+                        }
+                    }
+                }
+
+            }
+
         }
     }
 }

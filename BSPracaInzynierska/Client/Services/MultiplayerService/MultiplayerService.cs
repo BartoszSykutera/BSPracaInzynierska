@@ -19,9 +19,8 @@ namespace BSPracaInzynierska.Client.Services.MultiplayerService
         public List<string> currentAnswers { get; set; } = new List<string>();
         public List<InGamePlayerInfo> inGameLeaderboard { get; set; } = new List<InGamePlayerInfo>();
         public List<InGamePlayerInfo> currentListOfTimes { get; set; } = new List<InGamePlayerInfo>();
-        public async Task GetGame(Guid id)
+        public async Task<string> GetGame(Guid id)
         {
-            Guid qwe = id;
             var resultGame = await _httpClient.GetAsync($"api/MultiGames/{id}");
             Random rand = new Random();
             if (resultGame != null)
@@ -30,8 +29,9 @@ namespace BSPracaInzynierska.Client.Services.MultiplayerService
                 SongList = MultiGame.Playlist.Songs.ToList();
                 SongList.ForEach(s => availableAnswers.Add(s.Title));
                 availableAnswers = availableAnswers.OrderBy(a => rand.Next()).ToList();
-                var fgh = "fghfd";
+                return MultiGame.Id.ToString();
             }
+            return "No game";
         }
 
         public async Task GetAnswers(string correctAnswer)

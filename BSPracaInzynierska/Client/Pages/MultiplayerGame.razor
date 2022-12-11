@@ -1,4 +1,4 @@
-﻿@page "/multiGame/{Id}"
+﻿@page "/multiGame"
 @inject IMultiplayerService gameService
 @using Microsoft.AspNetCore.SignalR.Client
 @using Microsoft.AspNetCore.Authorization
@@ -24,12 +24,15 @@
             }
             @if (isGameHost == true && isStarted == false)
             {
+                <h1 class="font-weight-bold">Your game code: @gameService.MultiGame.GameCode</h1>
                 <button class="btn btn-success btn-lg w-100" @onclick="() => Load(gameService.SongList[0].YTVidoeId)" type="button">Play</button>
             }
             else
             {
                 <p>Waiting for game host to start game</p>
             }
+            <br />
+            <br />
             <h1 class="font-weight-bold">Players</h1>
             <table class="table  table-striped" style="width: 70%; margin: auto">
                 <thead>
@@ -57,8 +60,7 @@
             <br />
             <div class="row">
                 <div class="col-sm-12 text-center">
-                    <button class="btn btn-danger btn-md center-block" Style="width: 150px;">Quit Game</button>
-                    <button class="btn btn-primary btn-md center-block" Style="width: 150px;">Play again</button>
+                    <button class="btn btn-danger btn-md center-block" @onclick="() => QuitGame()" Style="width: 150px;">Quit Game</button>
                 </div>
             </div>
             <br />
@@ -188,33 +190,32 @@
 @code {
 
     /*
-     * <div class="podium">
-      <div class="podium-item" style="height: 120px; background-color: #cccccc;">2</div>
+    * <div class="podium">
+    <div class="podium-item" style="height: 120px; background-color: #cccccc;">2</div>
     <div class="podium-item" style="height: 150px; background-color: #ffcc00;">1</div>
     <div class="podium-item" style="height: 90px; background-color: #99cc00;">3</div>
-      </div>
+    </div>
 
-      .podium {
-      display: flex;
+    .podium {
+    display: flex;
       justify-content: center;
       align-items: flex-end;
-    }
+      }
 
-    .podium-item {
+      .podium-item {
       width: 100px;
       height: 100px;
       border: 0;
       text-align: center;
-      line-height: 100px;
-      font-size: 20px;
+    line-height: 100px;
+    font-size: 20px;
     }
 
     .podium-item:not(:last-child) {
       margin-right: 0px;
-    }
+     }
      */
 
-    [Parameter]
     public string? Id { get; set; }
     [CascadingParameter]
     public Task<AuthenticationState> authenticationState { get; set; }
@@ -240,16 +241,22 @@
 
     protected override async Task OnParametersSetAsync()
     {
+
         var authState = await authenticationState;
         var user = authState.User;
         currentUserId = user.FindFirst(c => c.Type.Contains("nameidentifier"))?.Value;
+        Id = await gameService.GetGame(new Guid(currentUserId));
         currentIndex = 0;
         await BundleAndSendDotNetHelper();
         await JsRuntime.InvokeVoidAsync("initialize");
-        await gameService.GetGame(new Guid(Id));
         gameTime = gameService.MultiGame.gameTime;
         elapsedTime = gameService.MultiGame.gameTime;
         hubConnection = new HubConnectionBuilder().WithUrl("https://localhost:7069/gamehub").Build();
+
+        hubConnection.On("DisconnectFromGame", () =>
+        {
+            navigationManager.NavigateTo("/mainpage", true);
+        });
 
         hubConnection.On<List<UserConnectionInfo>>("UpdatePlayerList", (playerList) =>
         {
@@ -473,6 +480,11 @@
         StateHasChanged();
     }
 
+    public void QuitGame()
+    {
+        navigationManager.NavigateTo("/mainpage", true);
+    }
+
 
     //Timer Configuration
     double elapsedTime = 0;
@@ -520,6 +532,7 @@
 
     public void Dispose()
     {
+        hubConnection.DisposeAsync();
         timer.Dispose();
     }
 }

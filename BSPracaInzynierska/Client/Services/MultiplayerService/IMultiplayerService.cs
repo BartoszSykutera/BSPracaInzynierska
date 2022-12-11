@@ -11,7 +11,7 @@ namespace BSPracaInzynierska.Client.Services.MultiplayerService
         List<string> currentAnswers { get; set; }
         List<InGamePlayerInfo> inGameLeaderboard { get; set; }
         List<InGamePlayerInfo> currentListOfTimes { get; set; }
-        public Task GetGame(Guid id);
+        public Task<string> GetGame(Guid id);
         public Task GetAnswers(string correctAnswer);
     }
 }

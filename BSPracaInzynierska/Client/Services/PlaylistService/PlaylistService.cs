@@ -8,6 +8,7 @@ using Google.Apis.YouTube.v3.Data;
 using Microsoft.AspNetCore.Components.Authorization;
 using System;
 using System.Net.Http.Json;
+using System.Text.RegularExpressions;
 using static System.Net.WebRequestMethods;
 
 
@@ -39,39 +40,58 @@ namespace BSPracaInzynierska.Client.Services.PlaylistService
         public async Task GetVideo(string input)
         {
             string id = "";
+            /*
             if (input.Split('/')[input.Split('/').Length - 1].Split('=').Length > 1)
             {
                 id = input.Split('/')[input.Split('/').Length - 1].Split('=')[1];
+               var fghd = "ghdf";
             }
             else
             {
                 id = input.Split('/')[input.Split('/').Length - 1];
+                var fgjkgh = "wertwet";
+            }
+            */
+            string pattern = @"^https:\/\/www\.youtube\.com\/watch\?.*v=([a-zA-Z0-9_\-]+)$";
+
+            Match match = Regex.Match(input, pattern);
+            if (match.Success)
+            {
+                id = match.Groups[1].Value;
+                var result = await _httpClient.PostAsJsonAsync<string>("api/Songs/getvideobyurl", id);
+                Song? searchedSong = await result.Content.ReadFromJsonAsync<Song>();
+                if(searchedSong != null)
+                {
+                    songs.Insert(0, searchedSong);
+                }
             }
 
-            var result = await _httpClient.PostAsJsonAsync<string>("api/Songs/getvideobyurl", id);
-            Song? searchedSong = await result.Content.ReadFromJsonAsync<Song>();
-            if(searchedSong != null)
-            {
-                songs.Insert(0, searchedSong);
-            }
+            
         }
 
         public async Task GetVideosFromPlaylist(string input)
         {
             string id = "";
-            string[] subs = input.Split("list=");
-            id = subs[1];
+            //string[] subs = input.Split("list=");
+            //id = subs[1];
 
-            var result = await _httpClient.PostAsJsonAsync<string>("api/Songs/getplaylistbyurl", id);
-            List<Song>? searchedSongs = await result.Content.ReadFromJsonAsync<List<Song>>();
-            if (searchedSongs.Count() > 0)
+            string pattern = @"^https:\/\/www\.youtube\.com\/watch\?.*list=([a-zA-Z0-9_\-]+)$";
+            Match match = Regex.Match(input, pattern);
+            if (match.Success)
             {
-                searchedSongs.ForEach(s =>
+                id = match.Groups[1].Value;
+                var result = await _httpClient.PostAsJsonAsync<string>("api/Songs/getplaylistbyurl", id);
+                List<Song>? searchedSongs = await result.Content.ReadFromJsonAsync<List<Song>>();
+                if (searchedSongs.Count() > 0)
                 {
-                    songs.Insert(0, s);
-                });
-                
+                    searchedSongs.ForEach(s =>
+                    {
+                        songs.Insert(0, s);
+                    });
+
+                }
             }
+            
         }
         public async Task GetVideos(string input)
         {

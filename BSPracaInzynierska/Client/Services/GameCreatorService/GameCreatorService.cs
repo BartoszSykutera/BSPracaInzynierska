@@ -17,12 +17,7 @@ namespace BSPracaInzynierska.Client.Services.GameCreatorService
 
         public async Task CreateMultiGame(Guid id, int gameDuration, int songToGuess, Guid userId)
         {
-            //songs.ForEach(s => s.PlaylistId = musicPlaylist.Id);
-            //musicPlaylist.UserId = id;
-            //musicPlaylist.NumberOfTracks = songs.Count();
-            //musicPlaylist.Songs = songs;
             game.PlaylistId = id;
-            //game.Playlist = playlist;
             game.gameTime = gameDuration;
             game.NumberOfTracks = songToGuess;
             game.UserHost = userId;

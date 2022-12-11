@@ -14,7 +14,7 @@ namespace BSPracaInzynierska.Shared
         public Guid PlaylistId { get; set; }
         public MusicPlaylist? Playlist { get; set; }
         public Guid UserHost {  get; set; }
-        //public List<User>? Players { get; set; }
+        public virtual ICollection<User>? Players { get; set; }
         public string? GameCode { get; set; }
     }
 }

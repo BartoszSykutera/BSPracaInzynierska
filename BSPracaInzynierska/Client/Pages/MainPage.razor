@@ -3,9 +3,19 @@
 @inject IMainPageService mainService
 
 
-<div class="container mx-auto">
-    <h3>Choose your Playlist</h3>
-
+<div class="container mx-auto text-center">
+    <h1 class="font-weight-bold">Join to a game using game code</h1>
+    <div class="input-group mb-3">
+        <input type="text" class="form-control" @bind-value="gameCode" placeholder="Game code" aria-label="Game code" aria-describedby="basic-addon2">
+        <div class="input-group-append">
+            <button class="btn btn-outline-success" @onclick="() => JoinGame()" type="button">Join</button>
+        </div>
+    </div>
+    <p class="text-danger">@errorMessage</p>
+    <br />
+    <br />
+    <h1 class="font-weight-bold">Choose your Playlist</h1>
+    <br />
     <div class="container mx-auto" style="display: flex; flex-wrap: wrap; gap: 10px;">
         @foreach (var playlist in mainService.playlists)
         {
@@ -30,10 +40,33 @@
 
 
 @code {
+    [CascadingParameter]
+    public Task<AuthenticationState> authenticationState { get; set; }
+    public string gameCode { get; set; } = string.Empty;
+    public string errorMessage { get; set; } = string.Empty;
 
     protected override async Task OnInitializedAsync()
     {
         await mainService.GetPlaylists();
+    }
+
+    public async Task JoinGame()
+    {
+        var authState = await authenticationState;
+        var user = authState.User;
+        var id = new Guid(user.FindFirst(ClaimTypes.NameIdentifier)?.Value);
+        HttpResponseMessage message = await mainService.JoinGame(gameCode, id);
+        var responseStatusCode = message.StatusCode;
+        var returnedMessage = await message.Content.ReadAsStringAsync();
+
+        if (responseStatusCode == System.Net.HttpStatusCode.OK)
+        {
+            navigationManager.NavigateTo("multiGame");
+        }
+        else
+        {
+            errorMessage = returnedMessage;
+        }
     }
 
     public async Task DeletePlaylist(Guid id)
@@ -41,10 +74,12 @@
         await mainService.DeletePlaylists(id);
         await mainService.GetPlaylists();
     }
+
     public void PlayGameOne(Guid id)
     {
         navigationManager.NavigateTo($"gameCreator/{id.ToString()}");
     }
+
     public void EditPlaylist(Guid id)
     {
         navigationManager.NavigateTo($"editPlaylist/{id.ToString()}");

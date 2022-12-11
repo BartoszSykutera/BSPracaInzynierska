@@ -27,21 +27,6 @@ namespace BSPracaInzynierska.Server.Controllers
             this.context = context;
         }
 
-        [HttpPost("getcurrentuser")]
-        public async Task<ActionResult<User>> GetCurrentUser()
-        {
-            User currentUser = new User();
-
-            if (User.Identity.IsAuthenticated)
-            {
-                var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-                currentUser.Id = new Guid(userId);
-                currentUser.Username = User.FindFirstValue(ClaimTypes.Name);
-            }
-
-            return Ok(currentUser);
-        }
-
         [HttpPost("register")]
         public async Task<ActionResult> Register(UserLogs userLogs)
         {

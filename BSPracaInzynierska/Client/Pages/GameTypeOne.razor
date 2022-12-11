@@ -223,7 +223,7 @@
 
     async Task Load(string songId)
     {
-        await JsRuntime.InvokeVoidAsync("readyLR", songId);
+        await JsRuntime.InvokeVoidAsync("ready", songId);
         currentlyPlaying = gameService.songs.First();
 
         await generateAnswers();
@@ -288,10 +288,10 @@
     [JSInvokable]
     public async Task SongReady(string URL)
     {
-        //if (isGameReady == false)
-        //{
-            //Play();
-        //}
+        if (isGameReady == false)
+        {
+            Play();
+        }
         isGameReady = true;
         //await JsRuntime.InvokeVoidAsync("playVideo");
         StateHasChanged();

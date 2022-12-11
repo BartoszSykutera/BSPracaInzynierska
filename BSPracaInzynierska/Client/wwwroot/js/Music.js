@@ -35,20 +35,6 @@ function ready(newId) {
     });
 }
 
-function readyMulti(newId) {
-    player = null;
-    player = new YT.Player('player', {
-        height: '360',
-        width: '640',
-        videoId: newId,
-        playerVars: { 'rel': 0, 'controls': 1 },
-        events: {
-            'onReady': onPlayerReadyMulti,
-            'onStateChange': onPlayerStateChange
-        }
-    });
-}
-
 function onPlayerStateChange(event) {
     console.log("eeeee");
     if (event.data == YT.PlayerState.PLAYING) {

@@ -4,6 +4,7 @@ using BSPracaInzynierska.Server.DB;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,10 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace BSPracaInzynierska.Server.Migrations
 {
     [DbContext(typeof(DataContext))]
-    partial class DataContextModelSnapshot : ModelSnapshot
+    [Migration("20221212011845_ChangePlaylist")]
+    partial class ChangePlaylist
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -31,17 +33,13 @@ namespace BSPracaInzynierska.Server.Migrations
                     b.Property<Guid?>("PlaylistId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<double>("Points")
-                        .HasColumnType("float");
+                    b.Property<int>("Points")
+                        .HasColumnType("int");
 
                     b.Property<Guid?>("UserId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<string>("gameType")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<double?>("playerTime")
+                    b.Property<double>("playerTime")
                         .HasColumnType("float");
 
                     b.HasKey("Id");
@@ -204,10 +202,10 @@ namespace BSPracaInzynierska.Server.Migrations
                     b.HasData(
                         new
                         {
-                            Id = new Guid("334c644f-367d-426f-b2ca-bfbd279858f3"),
+                            Id = new Guid("e0e9f003-574c-4adf-b6bc-69845e7703ec"),
                             Email = "admin",
-                            PasswordHash = new byte[] { 180, 195, 99, 116, 110, 46, 191, 6, 123, 18, 88, 49, 100, 240, 31, 37, 254, 125, 236, 187, 90, 69, 233, 81, 194, 24, 33, 55, 128, 49, 250, 178, 204, 105, 209, 254, 238, 132, 75, 227, 170, 250, 240, 152, 41, 46, 138, 232, 243, 57, 202, 202, 42, 143, 175, 34, 3, 17, 53, 196, 64, 93, 230, 98 },
-                            PasswordSalt = new byte[] { 119, 174, 14, 18, 167, 99, 251, 216, 10, 196, 152, 8, 136, 130, 18, 154, 255, 241, 175, 75, 191, 187, 121, 222, 180, 78, 158, 209, 194, 140, 198, 203, 67, 152, 32, 55, 254, 240, 126, 61, 224, 246, 18, 150, 42, 107, 84, 57, 99, 7, 86, 6, 73, 67, 176, 73, 236, 36, 223, 165, 76, 159, 182, 111, 215, 161, 244, 115, 85, 13, 86, 20, 104, 150, 138, 82, 198, 130, 33, 76, 144, 13, 63, 249, 175, 234, 123, 239, 253, 112, 190, 91, 112, 182, 63, 49, 74, 68, 149, 145, 104, 40, 69, 239, 79, 41, 248, 98, 63, 236, 127, 153, 110, 204, 121, 157, 53, 165, 41, 147, 233, 121, 178, 171, 244, 39, 68, 191 },
+                            PasswordHash = new byte[] { 6, 89, 116, 226, 85, 241, 66, 9, 150, 54, 255, 242, 81, 39, 67, 201, 76, 84, 81, 12, 243, 56, 196, 194, 14, 47, 182, 112, 160, 141, 84, 29, 208, 214, 252, 86, 254, 60, 70, 233, 202, 233, 160, 94, 118, 164, 169, 190, 252, 158, 131, 115, 237, 85, 59, 32, 125, 179, 173, 78, 171, 116, 221, 9 },
+                            PasswordSalt = new byte[] { 140, 37, 37, 34, 56, 182, 242, 241, 195, 172, 48, 244, 113, 165, 116, 177, 84, 62, 30, 212, 162, 24, 29, 202, 66, 165, 160, 10, 16, 116, 73, 250, 181, 51, 141, 16, 190, 122, 48, 49, 177, 157, 10, 111, 107, 65, 249, 123, 117, 136, 185, 22, 42, 73, 52, 174, 43, 0, 93, 11, 98, 43, 248, 48, 155, 62, 52, 9, 231, 186, 227, 253, 186, 145, 79, 82, 20, 233, 118, 63, 208, 163, 196, 157, 72, 17, 211, 217, 42, 203, 91, 10, 42, 34, 218, 84, 43, 156, 219, 230, 24, 24, 58, 129, 42, 94, 99, 8, 138, 146, 85, 94, 240, 148, 230, 105, 68, 200, 208, 156, 254, 166, 163, 193, 89, 50, 202, 59 },
                             Role = "Admin",
                             Username = "admin"
                         });

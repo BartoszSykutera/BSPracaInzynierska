@@ -1,4 +1,5 @@
-﻿@page "/blindGuess/{Id}/{gameGuess}/{gameDuration}/{songToGuess}"
+﻿@page "/blindGuess/{Id}/{gameDuration}/{songToGuess}"
+@page "/blindGuess/rankedGame/{Id}"
 @inject IBlindGuessService gameService
 @inject IJSRuntime JsRuntime
 @inject NavigationManager navigationManager
@@ -100,10 +101,12 @@
                             }
                         </td>
                         <td style="vertical-align: middle;">
-                            @if(song.isReady == true)
+                            @if (song.isReady == true)
                             {
                                 <p>Loading...</p>
-                            }else{
+                            }
+                            else
+                            {
                                 <p>....................</p>
                             }
                         </td>
@@ -121,11 +124,11 @@
     [Parameter]
     public string? Id { get; set; }
     [Parameter]
-    public string gameGuess { get; set; }
-    [Parameter]
     public string gameDuration { get; set; }
     [Parameter]
     public string songToGuess { get; set; }
+    [CascadingParameter]
+    public Task<AuthenticationState> authenticationState { get; set; }
     public bool isPlayerReady = false;
     public bool isGameReady = false;
     public bool isGameOver = false;
@@ -139,6 +142,7 @@
         public bool guessed;
     };
     musicState currentlyPlaying;
+    Guid currentUserId = Guid.Empty;
     int currentIndex = 0;
     public List<musicState> videoIds = new List<musicState>();
     private DotNetObjectReference<BlindGuessGame>? _objRef;
@@ -149,10 +153,22 @@
 
     protected override async Task OnParametersSetAsync()
     {
-        elapsedTime = Int32.Parse(gameDuration);
         await BundleAndSendDotNetHelper();
         await JsRuntime.InvokeVoidAsync("initialize");
-        await gameService.GetSongs(new Guid(Id), Int32.Parse(songToGuess), gameGuess);
+        var authState = await authenticationState;
+        var user = authState.User;
+        currentUserId = new Guid(user.FindFirst(c => c.Type.Contains("nameidentifier"))?.Value);
+        if (gameDuration == null || songToGuess == null)
+        {
+            await gameService.GetRankedGame(new Guid(Id));
+            elapsedTime = gameService.rankedPlaylist.blindGuessTime;
+        }
+        else
+        {
+            elapsedTime = Int32.Parse(gameDuration);
+            await gameService.GetSongs(new Guid(Id), Int32.Parse(songToGuess));
+        }
+
         gameService.songs.ForEach(s => videoIds.Add(new musicState { song = s, songId = s.YTVidoeId, state = false, isReady = false, guessed = false }));
     }
 
@@ -180,40 +196,29 @@
     {
         videoIds.ForEach(s =>
         {
-            if(gameGuess == "Title")
+
+            if (s.answer == s.song.Title)
             {
-                if (s.answer == s.song.Title)
-                {
-                    gameService.correctAnswers++;
-                    s.guessed = true;
-                }
-                else
-                {
-                    gameService.badAnswers++;
-                }
+                gameService.correctAnswers++;
+                s.guessed = true;
             }
-            else if(gameGuess == "Author")
+            else
             {
-                if (s.answer == s.song.Author)
-                {
-                    gameService.correctAnswers++;
-                    s.guessed = true;
-                }
-                else
-                {
-                    gameService.badAnswers++;
-                }
+                gameService.badAnswers++;
             }
-            
+
         });
         isGameOver = true;
         await gameService.EndGame(elapsedTime);
+        if(gameDuration == null && songToGuess == null)
+        {
+            await gameService.SaveToLeaderBoard(currentUserId, new Guid(Id));
+        }
     }
 
     [JSInvokable]
     public void SongReady(string URL)
     {
-        //videoIds.Where(v => v.songId == currentlyPlaying.songId).FirstOrDefault().isReady = true;
         isGameReady = true;
         StateHasChanged();
     }
@@ -307,6 +312,14 @@
 
     public void PlayAgain()
     {
-        navigationManager.NavigateTo($"blindGuess/{Id}/{gameGuess}/{gameDuration}/{songToGuess}", true);
+        if(gameDuration == null || songToGuess == null)
+        {
+            navigationManager.NavigateTo($"/blindGuess/rankedGame/{Id}", true);
+        }
+        else
+        {
+            navigationManager.NavigateTo($"blindGuess/{Id}/{gameDuration}/{songToGuess}", true);
+        }
+        
     }
 }

@@ -63,10 +63,10 @@ namespace BSPracaInzynierska.Client.Services.PlaylistService
                 if(searchedSong != null)
                 {
                     songs.Insert(0, searchedSong);
+                    musicPlaylist.blindGuessSongs = songs.Count();
+                    musicPlaylist.lightningRoundSongs = songs.Count();
                 }
             }
-
-            
         }
 
         public async Task GetVideosFromPlaylist(string input)
@@ -87,6 +87,8 @@ namespace BSPracaInzynierska.Client.Services.PlaylistService
                     searchedSongs.ForEach(s =>
                     {
                         songs.Insert(0, s);
+                        musicPlaylist.blindGuessSongs = songs.Count();
+                        musicPlaylist.lightningRoundSongs = songs.Count();
                     });
 
                 }
@@ -106,6 +108,8 @@ namespace BSPracaInzynierska.Client.Services.PlaylistService
             if(selectedSong != null)
             {
                 songs.Insert(0, selectedSong);
+                musicPlaylist.blindGuessSongs = songs.Count();
+                musicPlaylist.lightningRoundSongs = songs.Count();
             }
         }
         public void DeleteSongFromPlaylist(string videoId)
@@ -115,6 +119,8 @@ namespace BSPracaInzynierska.Client.Services.PlaylistService
             if (selectedSong != null)
             {
                 songs.Remove(selectedSong);
+                musicPlaylist.blindGuessSongs = songs.Count();
+                musicPlaylist.lightningRoundSongs = songs.Count();
             }
         }
         public async Task CreatePlaylist(Guid id)

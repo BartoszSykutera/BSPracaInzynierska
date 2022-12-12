@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace BSPracaInzynierska.Server.Migrations
 {
-    public partial class GameCode8 : Migration
+    public partial class Initial2 : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -55,6 +55,7 @@ namespace BSPracaInzynierska.Server.Migrations
                     PlaylistName = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     NumberOfTracks = table.Column<int>(type: "int", nullable: false),
                     Description = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    favourites = table.Column<long>(type: "bigint", nullable: false),
                     UserId = table.Column<Guid>(type: "uniqueidentifier", nullable: true)
                 },
                 constraints: table =>
@@ -65,6 +66,55 @@ namespace BSPracaInzynierska.Server.Migrations
                         column: x => x.UserId,
                         principalTable: "Uzytkownicy",
                         principalColumn: "Id");
+                });
+
+            migrationBuilder.CreateTable(
+                name: "LeaderBoard",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    UserId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    PlaylistId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    playerTime = table.Column<double>(type: "float", nullable: false),
+                    Points = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_LeaderBoard", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_LeaderBoard_MusicPlaylists_PlaylistId",
+                        column: x => x.PlaylistId,
+                        principalTable: "MusicPlaylists",
+                        principalColumn: "Id");
+                    table.ForeignKey(
+                        name: "FK_LeaderBoard_Uzytkownicy_UserId",
+                        column: x => x.UserId,
+                        principalTable: "Uzytkownicy",
+                        principalColumn: "Id");
+                });
+
+            migrationBuilder.CreateTable(
+                name: "MusicPlaylistUser",
+                columns: table => new
+                {
+                    FavouritePlaylistsId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    UsersFavouritesId = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_MusicPlaylistUser", x => new { x.FavouritePlaylistsId, x.UsersFavouritesId });
+                    table.ForeignKey(
+                        name: "FK_MusicPlaylistUser_MusicPlaylists_FavouritePlaylistsId",
+                        column: x => x.FavouritePlaylistsId,
+                        principalTable: "MusicPlaylists",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_MusicPlaylistUser_Uzytkownicy_UsersFavouritesId",
+                        column: x => x.UsersFavouritesId,
+                        principalTable: "Uzytkownicy",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -94,7 +144,7 @@ namespace BSPracaInzynierska.Server.Migrations
             migrationBuilder.InsertData(
                 table: "Uzytkownicy",
                 columns: new[] { "Id", "Email", "PasswordHash", "PasswordSalt", "Role", "Username", "currentGameId" },
-                values: new object[] { new Guid("dd25ec7c-aa8e-4204-b5b5-a136865ce00c"), "admin", new byte[] { 128, 43, 230, 36, 252, 132, 173, 68, 11, 157, 61, 98, 208, 146, 170, 174, 252, 249, 209, 106, 130, 188, 127, 204, 132, 97, 15, 217, 8, 4, 108, 221, 113, 140, 38, 202, 144, 253, 14, 207, 219, 76, 48, 119, 208, 22, 203, 224, 19, 122, 253, 172, 44, 177, 148, 98, 29, 139, 125, 108, 252, 6, 106, 211 }, new byte[] { 81, 39, 176, 205, 169, 247, 8, 59, 72, 71, 239, 237, 165, 186, 252, 149, 141, 86, 148, 177, 200, 89, 8, 81, 123, 62, 88, 181, 41, 60, 117, 238, 76, 162, 183, 170, 62, 195, 93, 58, 15, 90, 253, 88, 45, 17, 61, 255, 239, 198, 28, 128, 207, 73, 65, 209, 117, 148, 114, 34, 143, 246, 103, 64, 48, 186, 53, 201, 130, 136, 241, 36, 208, 220, 101, 41, 219, 7, 21, 222, 179, 66, 66, 146, 110, 80, 167, 246, 60, 91, 63, 99, 186, 186, 189, 200, 244, 108, 141, 21, 202, 239, 137, 201, 103, 104, 198, 119, 136, 71, 122, 118, 241, 145, 60, 1, 91, 165, 254, 60, 54, 4, 233, 227, 178, 240, 49, 201 }, "Admin", "admin", null });
+                values: new object[] { new Guid("533c819e-d18c-4a16-a5f4-32a9b5fcaefc"), "admin", new byte[] { 58, 185, 106, 223, 89, 59, 250, 118, 25, 112, 50, 18, 167, 248, 255, 168, 198, 162, 176, 211, 240, 184, 76, 207, 196, 218, 131, 153, 152, 19, 164, 51, 222, 196, 216, 170, 210, 7, 47, 185, 42, 103, 106, 143, 157, 188, 144, 221, 131, 12, 193, 160, 90, 91, 6, 80, 174, 134, 9, 244, 125, 96, 238, 177 }, new byte[] { 196, 253, 84, 14, 201, 247, 85, 152, 177, 207, 195, 33, 23, 33, 8, 232, 55, 136, 248, 240, 1, 63, 172, 81, 214, 229, 211, 216, 112, 220, 154, 76, 226, 206, 130, 46, 158, 187, 217, 28, 112, 219, 52, 165, 26, 13, 48, 148, 119, 172, 245, 138, 50, 220, 88, 205, 138, 129, 122, 194, 178, 205, 48, 187, 218, 37, 172, 163, 224, 121, 92, 91, 29, 207, 254, 107, 143, 252, 250, 208, 250, 249, 245, 114, 41, 108, 213, 72, 90, 71, 106, 121, 216, 168, 106, 190, 3, 35, 69, 29, 144, 54, 136, 86, 251, 164, 32, 211, 63, 239, 178, 213, 96, 254, 162, 243, 231, 219, 18, 193, 38, 174, 172, 76, 161, 77, 247, 97 }, "Admin", "admin", null });
 
             migrationBuilder.CreateIndex(
                 name: "IX_Game_PlaylistId",
@@ -102,9 +152,24 @@ namespace BSPracaInzynierska.Server.Migrations
                 column: "PlaylistId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_LeaderBoard_PlaylistId",
+                table: "LeaderBoard",
+                column: "PlaylistId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_LeaderBoard_UserId",
+                table: "LeaderBoard",
+                column: "UserId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_MusicPlaylists_UserId",
                 table: "MusicPlaylists",
                 column: "UserId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_MusicPlaylistUser_UsersFavouritesId",
+                table: "MusicPlaylistUser",
+                column: "UsersFavouritesId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Songs_PlaylistId",
@@ -130,6 +195,12 @@ namespace BSPracaInzynierska.Server.Migrations
             migrationBuilder.DropForeignKey(
                 name: "FK_Game_MusicPlaylists_PlaylistId",
                 table: "Game");
+
+            migrationBuilder.DropTable(
+                name: "LeaderBoard");
+
+            migrationBuilder.DropTable(
+                name: "MusicPlaylistUser");
 
             migrationBuilder.DropTable(
                 name: "Songs");

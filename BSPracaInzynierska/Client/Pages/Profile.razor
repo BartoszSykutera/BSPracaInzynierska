@@ -1,0 +1,144 @@
+﻿@page "/profile"
+@page "/userProfile/{Id}"
+@inject NavigationManager navigationManager
+@inject IProfileService profileService
+
+<div class="container mx-auto text-center">
+@if (Id == null)
+{
+    <h1 class="font-weight-bold">Hello @currentUserName, welcome to your profile!</h1>
+}
+else
+{
+    <h1 class="font-weight-bold">This is profile of @currentUserName</h1>
+}
+</div>
+<br />
+<h1 class="font-weight-bold">Show</h1>
+<select @onchange="(e) => ChangePlaylists(e.Value)">
+    <option value="True" selected>Created playlists</option>
+    <option value="False">Saved playlists</option>
+</select>
+<br />
+<br />
+@if (isCreatedShow == true)
+{
+    <h1 class="font-weight-bold">Your Playlists</h1>
+    <button class="btn btn-success" @onclick="() => CreateNew()" type="button">Create new playlist</button>
+    <br />
+    <br />
+    <div class="container mx-auto" style="display: flex; flex-wrap: wrap; gap: 10px;">
+        @foreach (var playlist in profileService.createdPlaylists)
+        {
+            <div class="card" style="margin:auto; width: 15rem;">
+                <img class="card-img-top" src="@playlist.Songs.FirstOrDefault().Picture" alt="Card image cap">
+                <div class="card-body">
+                    <h4 class="card-title">@playlist.PlaylistName</h4>
+                    <p class="card-text">
+                        Number of Tracks: @playlist.Songs.Count()
+                        <br />
+                        Created by: @playlist.Creator.Username
+                    </p>
+                    @if (Id == null)
+                    {
+                        <button class="btn btn-danger" @onclick="() => DeletePlaylist(playlist.Id)" type="button">Delete</button>
+                        <button class="btn btn-warning" @onclick="() => EditPlaylist(playlist.Id)" type="button">Edit</button>
+                    }
+                    <button class="btn btn-success" @onclick="() => PlayGameOne(playlist.Id)" type="button">Play</button>
+                </div>
+            </div>
+        }
+    </div>
+
+}
+else
+{
+    <h1 class="font-weight-bold">Saved Playlists</h1>
+    <br />
+    <br />
+    <div class="container mx-auto" style="display: flex; flex-wrap: wrap; gap: 10px;">
+        @foreach (var playlist in profileService.favouritePlaylists)
+        {
+            <div class="card" style="margin:auto; width: 15rem;">
+                <img class="card-img-top" src="@playlist.Songs.FirstOrDefault().Picture" alt="Card image cap">
+                <div class="card-body">
+                    <h4 class="card-title">@playlist.PlaylistName</h4>
+                    <p class="card-text">
+                        Number of Tracks: @playlist.Songs.Count()
+                        <br />
+                        Created by: @playlist.Creator.Username
+                    </p>
+                    <button class="btn btn-success" @onclick="() => PlayGameOne(playlist.Id)" type="button">Play</button>
+                </div>
+            </div>
+        }
+    </div>
+}
+
+
+
+@code {
+    [CascadingParameter]
+    public Task<AuthenticationState> authenticationState { get; set; }
+    [Parameter]
+    public string? Id { get; set; } = string.Empty;
+    public Guid currentUserId = Guid.Empty;
+    public string currentUserName = string.Empty;
+    public bool isCreatedShow = true;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var authState = await authenticationState;
+        var user = authState.User;
+        if (!user.Identity.IsAuthenticated)
+        {
+            navigationManager.NavigateTo("/login", true);
+        }
+        else
+        {
+            if (Id == null)
+                currentUserId = new Guid(user.FindFirst(c => c.Type.Contains("nameidentifier"))?.Value);
+            else
+                currentUserId = new Guid(Id);
+
+            await profileService.GetUser(currentUserId);
+
+            if (profileService.userProfile == null)
+            {
+                navigationManager.NavigateTo("/mainpage", true);
+            }
+            else
+            {
+                currentUserName = profileService.userProfile.Username;
+                await profileService.GetCreatedPlaylist(currentUserId);
+            }
+        }
+    }
+
+    void ChangePlaylists(object args)
+    {
+        isCreatedShow = bool.Parse(args.ToString());
+        StateHasChanged();
+    }
+
+    public async Task DeletePlaylist(Guid id)
+    {
+        await profileService.DeletePlaylists(id);
+        await InvokeAsync(() => StateHasChanged());
+    }
+
+    public void PlayGameOne(Guid id)
+    {
+        navigationManager.NavigateTo($"gameCreator/{id.ToString()}");
+    }
+
+    public void EditPlaylist(Guid id)
+    {
+        navigationManager.NavigateTo($"editPlaylistProfile/{id.ToString()}");
+    }
+
+    public void CreateNew()
+    {
+        navigationManager.NavigateTo("createPlaylist");
+    }
+}

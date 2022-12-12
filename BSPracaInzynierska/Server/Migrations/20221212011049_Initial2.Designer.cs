@@ -4,6 +4,7 @@ using BSPracaInzynierska.Server.DB;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,10 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace BSPracaInzynierska.Server.Migrations
 {
     [DbContext(typeof(DataContext))]
-    partial class DataContextModelSnapshot : ModelSnapshot
+    [Migration("20221212011049_Initial2")]
+    partial class Initial2
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -31,17 +33,13 @@ namespace BSPracaInzynierska.Server.Migrations
                     b.Property<Guid?>("PlaylistId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<double>("Points")
-                        .HasColumnType("float");
+                    b.Property<int>("Points")
+                        .HasColumnType("int");
 
                     b.Property<Guid?>("UserId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<string>("gameType")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<double?>("playerTime")
+                    b.Property<double>("playerTime")
                         .HasColumnType("float");
 
                     b.HasKey("Id");
@@ -101,20 +99,8 @@ namespace BSPracaInzynierska.Server.Migrations
                     b.Property<Guid?>("UserId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<int>("blindGuessSongs")
-                        .HasColumnType("int");
-
-                    b.Property<int>("blindGuessTime")
-                        .HasColumnType("int");
-
                     b.Property<long>("favourites")
                         .HasColumnType("bigint");
-
-                    b.Property<int>("lightningRoundSongs")
-                        .HasColumnType("int");
-
-                    b.Property<int>("lightningRoundTime")
-                        .HasColumnType("int");
 
                     b.HasKey("Id");
 
@@ -204,10 +190,10 @@ namespace BSPracaInzynierska.Server.Migrations
                     b.HasData(
                         new
                         {
-                            Id = new Guid("334c644f-367d-426f-b2ca-bfbd279858f3"),
+                            Id = new Guid("533c819e-d18c-4a16-a5f4-32a9b5fcaefc"),
                             Email = "admin",
-                            PasswordHash = new byte[] { 180, 195, 99, 116, 110, 46, 191, 6, 123, 18, 88, 49, 100, 240, 31, 37, 254, 125, 236, 187, 90, 69, 233, 81, 194, 24, 33, 55, 128, 49, 250, 178, 204, 105, 209, 254, 238, 132, 75, 227, 170, 250, 240, 152, 41, 46, 138, 232, 243, 57, 202, 202, 42, 143, 175, 34, 3, 17, 53, 196, 64, 93, 230, 98 },
-                            PasswordSalt = new byte[] { 119, 174, 14, 18, 167, 99, 251, 216, 10, 196, 152, 8, 136, 130, 18, 154, 255, 241, 175, 75, 191, 187, 121, 222, 180, 78, 158, 209, 194, 140, 198, 203, 67, 152, 32, 55, 254, 240, 126, 61, 224, 246, 18, 150, 42, 107, 84, 57, 99, 7, 86, 6, 73, 67, 176, 73, 236, 36, 223, 165, 76, 159, 182, 111, 215, 161, 244, 115, 85, 13, 86, 20, 104, 150, 138, 82, 198, 130, 33, 76, 144, 13, 63, 249, 175, 234, 123, 239, 253, 112, 190, 91, 112, 182, 63, 49, 74, 68, 149, 145, 104, 40, 69, 239, 79, 41, 248, 98, 63, 236, 127, 153, 110, 204, 121, 157, 53, 165, 41, 147, 233, 121, 178, 171, 244, 39, 68, 191 },
+                            PasswordHash = new byte[] { 58, 185, 106, 223, 89, 59, 250, 118, 25, 112, 50, 18, 167, 248, 255, 168, 198, 162, 176, 211, 240, 184, 76, 207, 196, 218, 131, 153, 152, 19, 164, 51, 222, 196, 216, 170, 210, 7, 47, 185, 42, 103, 106, 143, 157, 188, 144, 221, 131, 12, 193, 160, 90, 91, 6, 80, 174, 134, 9, 244, 125, 96, 238, 177 },
+                            PasswordSalt = new byte[] { 196, 253, 84, 14, 201, 247, 85, 152, 177, 207, 195, 33, 23, 33, 8, 232, 55, 136, 248, 240, 1, 63, 172, 81, 214, 229, 211, 216, 112, 220, 154, 76, 226, 206, 130, 46, 158, 187, 217, 28, 112, 219, 52, 165, 26, 13, 48, 148, 119, 172, 245, 138, 50, 220, 88, 205, 138, 129, 122, 194, 178, 205, 48, 187, 218, 37, 172, 163, 224, 121, 92, 91, 29, 207, 254, 107, 143, 252, 250, 208, 250, 249, 245, 114, 41, 108, 213, 72, 90, 71, 106, 121, 216, 168, 106, 190, 3, 35, 69, 29, 144, 54, 136, 86, 251, 164, 32, 211, 63, 239, 178, 213, 96, 254, 162, 243, 231, 219, 18, 193, 38, 174, 172, 76, 161, 77, 247, 97 },
                             Role = "Admin",
                             Username = "admin"
                         });

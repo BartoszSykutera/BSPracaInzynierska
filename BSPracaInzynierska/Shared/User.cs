@@ -16,9 +16,12 @@ namespace BSPracaInzynierska.Shared
         public byte[] PasswordSalt { get; set; }
         public string Role { get; set; } = "User";
         public Guid? currentGameId { get; set; }
+        public virtual ICollection<MusicPlaylist>? FavouritePlaylists { get; set; }
         [JsonIgnore]
         public virtual ICollection<MusicPlaylist>? MusicPlaylists { get; set; }
         [JsonIgnore]
         public virtual MultiGame? CurrentGame { get; set; }
+        [JsonIgnore]
+        public virtual ICollection<LeaderBoard>? Leaders { get; set; }
     }
 }

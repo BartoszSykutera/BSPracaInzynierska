@@ -1,4 +1,5 @@
-﻿@page "/lightingRounds/{Id}/{gameGuess}/{gameDuration}/{songToGuess}"
+﻿@page "/lightingRounds/{Id}/{gameDuration}/{songToGuess}"
+@page "/lightingRounds/rankedGame/{Id}"
 @inject IGameOneService gameService
 @inject IJSRuntime JsRuntime
 @inject NavigationManager navigationManager
@@ -71,7 +72,12 @@
     }
     else
     {
-        <h4 style="text-align: center;">Track @(currentIndex+1)/@songToGuess</h4>
+        @if(songToGuess == null)
+        {
+            <h4 style="text-align: center;">Track @(currentIndex + 1)/@gameService.rankedPlaylist.lightningRoundSongs</h4>
+        }else{
+            <h4 style="text-align: center;">Track @(currentIndex + 1)/@songToGuess</h4>
+        }
         <br />
         @if (isRoundOver == true)
         {
@@ -128,11 +134,11 @@
     [Parameter]
     public string? Id { get; set; }
     [Parameter]
-    public string gameGuess { get; set; }
-    [Parameter]
     public string gameDuration { get; set; }
     [Parameter]
     public string songToGuess { get; set; }
+    [CascadingParameter]
+    public Task<AuthenticationState> authenticationState { get; set; }
     public bool isGameOver = false;
     public bool isRoundOver = false;
     public bool isGameReady = false;
@@ -146,6 +152,7 @@
     };
     Song currentlyPlaying;
     int currentIndex;
+    Guid currentUserId = Guid.Empty;
     public List<answersAvailable> answerList = new List<answersAvailable>();
     private DotNetObjectReference<GameTypeOne>? _objRef;
 
@@ -161,11 +168,24 @@
     {
         isGameReady = false;
         currentIndex = 0;
-        gameTime = Convert.ToDouble(gameDuration);
-        elapsedTime = Convert.ToDouble(gameDuration);
         await BundleAndSendDotNetHelper();
         await JsRuntime.InvokeVoidAsync("initialize");
-        await gameService.GetSongs(new Guid(Id), Int32.Parse(songToGuess), gameGuess);
+        var authState = await authenticationState;
+        var user = authState.User;
+        currentUserId = new Guid(user.FindFirst(c => c.Type.Contains("nameidentifier"))?.Value);
+        if (gameDuration == null || songToGuess == null)
+        {
+            await gameService.GetRankedGame(new Guid(Id));
+            elapsedTime = gameService.rankedPlaylist.lightningRoundTime;
+            gameTime = gameService.rankedPlaylist.lightningRoundTime;
+        }
+        else
+        {
+            gameTime = Convert.ToDouble(gameDuration);
+            elapsedTime = Convert.ToDouble(gameDuration);
+            //elapsedTime = Int32.Parse(gameDuration);
+            await gameService.GetSongs(new Guid(Id), Int32.Parse(songToGuess));
+        }  
     }
 
     private async Task BundleAndSendDotNetHelper()
@@ -241,7 +261,10 @@
             currentIndex++;
             isPlayerReady = false;
             currentlyPlaying = gameService.songs[currentIndex];
-            elapsedTime = Convert.ToDouble(gameDuration);
+            if (gameDuration == null || songToGuess == null)
+                elapsedTime = gameService.rankedPlaylist.lightningRoundTime;
+            else
+                elapsedTime = Convert.ToDouble(gameDuration);
             elapsedTime = Math.Round(elapsedTime, 2);
             await generateAnswers();
             await JsRuntime.InvokeVoidAsync("loadNew", currentlyPlaying.YTVidoeId);
@@ -251,7 +274,10 @@
             isGameOver = true;
             isGameReady = false;
             gameService.listOfTimes.ForEach(t => gameService.totalPoints = gameService.totalPoints + t.Points);
-
+            if(gameDuration == null && songToGuess == null)
+            {
+                gameService.SaveToLeaderBoard(currentUserId, new Guid(Id));
+            }
         }
         isRoundOver = false;
 
@@ -351,6 +377,13 @@
 
     public void PlayAgain()
     {
-        navigationManager.NavigateTo($"lightingRounds/{Id}/{gameGuess}/{gameDuration}/{songToGuess}", true);
+        if (gameDuration == null || songToGuess == null)
+        {
+            navigationManager.NavigateTo($"/lightingRounds/rankedGame/{Id}", true);
+        }
+        else
+        {
+            navigationManager.NavigateTo($"lightingRounds/{Id}/{gameDuration}/{songToGuess}", true);
+        }
     }
 }

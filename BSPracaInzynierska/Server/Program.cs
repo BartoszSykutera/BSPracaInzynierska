@@ -1,4 +1,4 @@
-using BSPracaInzynierska.Server.DB;
+﻿using BSPracaInzynierska.Server.DB;
 using Google.Apis.Services;
 using Google.Apis.YouTube.v3;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -10,6 +10,7 @@ using Swashbuckle.AspNetCore.Filters;
 using System.Text;
 using BSPracaInzynierska.Server.Hubs;
 using Microsoft.Extensions.Primitives;
+using BSPracaInzynierska.Server.Controllers;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -95,5 +96,7 @@ app.MapControllers();
 app.MapHub<GameHub>("/gamehub");
 
 app.MapFallbackToFile("index.html");
+
+//app.MapLeaderBoardEndpoints();
 
 app.Run();

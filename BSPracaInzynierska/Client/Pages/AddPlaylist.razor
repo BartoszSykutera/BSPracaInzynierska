@@ -1,34 +1,55 @@
 ﻿@page "/createPlaylist"
-@page "/editPlaylist/{Id}"
+@page "/{prevPage}/{Id}"
 @inject IPlaylistService playlistService
 @inject NavigationManager navigationManager
 
 <div class="text-center">
     <h1>Music Playlist Creator</h1>
 </div>
-
-<EditForm Model="@playlistService.musicPlaylist" OnValidSubmit="@CreatePlaylist">
-    <DataAnnotationsValidator />
-    <ValidationSummary />
-    <div class="container-fluid">
+<div class="container mx-auto">
+    <EditForm Model="@playlistService.musicPlaylist" OnValidSubmit="@CreatePlaylist">
+        <DataAnnotationsValidator />
+        <ValidationSummary />
         <div class="row">
-            <div class="col">
-            </div>
-            <div class="col-10">
+            <div class="col-2"></div>
+            <div class="col-8">
                 <p class="font-weight-bold" style="margin-bottom:2">Playlist Name</p>
-                <InputText style="width:70%;" @bind-Value="playlistService.musicPlaylist.PlaylistName" placeholder="YouTube URL" aria-label="YouTube URL" aria-describedby="basic-addon2" />
+                <InputText style="width:100%;" @bind-Value="playlistService.musicPlaylist.PlaylistName" placeholder="YouTube URL" aria-label="YouTube URL" aria-describedby="basic-addon2" />
+                <br />
+                <br />
                 <p class="font-weight-bold" style="margin-bottom:2">Description</p>
-                <InputTextArea style="width:70%;" @bind-Value="playlistService.musicPlaylist.Description" placeholder="YouTube URL" aria-label="YouTube URL" aria-describedby="basic-addon2" />
+                <InputTextArea style="width:100%;" @bind-Value="playlistService.musicPlaylist.Description" placeholder="YouTube URL" aria-label="YouTube URL" aria-describedby="basic-addon2" />
+                <br />
                 <button class="btn btn-success" type="submit">@btnText</button>
             </div>
+            <div class="col-2"></div>
         </div>
+    </EditForm>
+    <br />
+    <div class="row">
+        <div class="col-2"></div>
+        <div class="col-8">
+            <p class="font-weight-bold">BlindGuess ranked parameters</p>
+            <div class="input-group mb-3" style="width: 50%;">
+                <div class="input-group-prepend">
+                    <span class="input-group-text" id="">Game Time | Number of songs</span>
+                </div>
+                <input min=1 max=30 @bind-value="playlistService.musicPlaylist.blindGuessTime" type="number" class="form-control" placeholder="Game Time" aria-label="Game Time" aria-describedby="basic-addon2">
+                <input Min=1 max=@playlistService.songs.Count() @bind-value="playlistService.musicPlaylist.blindGuessSongs" type="number" class="form-control" placeholder="Number of Songs" aria-label="Number of Songs" aria-describedby="basic-addon2">
+            </div>
+            <p class="font-weight-bold">LightningRound ranked parameters</p>
+            <div class="input-group mb-3" style="width: 50%;">
+                <div class="input-group-prepend">
+                    <span class="input-group-text" id="">Round time | Number of songs</span>
+                </div>
+                <input min=1 max=10 @bind-value="playlistService.musicPlaylist.lightningRoundTime" type="number" class="form-control" placeholder="Game Time" aria-label="Game Time" aria-describedby="basic-addon2">
+                <input Min=1 max=@playlistService.songs.Count() @bind-value="playlistService.musicPlaylist.lightningRoundSongs" type="number" class="form-control" placeholder="Number of Songs" aria-label="Number of Songs" aria-describedby="basic-addon2">
+            </div>
+        </div>
+        <div class="col-2"></div>
     </div>
-</EditForm>
-<br />
-<br />
-<br />
-<br />
-<div class="container mx-auto">
+    <br />
+    <br />
     @if (YTsearchEngine == false)
     {
         <div class="row">
@@ -90,10 +111,12 @@
                             @if (!playlistService.songs.Where(s => s.YTVidoeId == video.YTVidoeId).Any())
                             {
                                 <button class="btn btn-primary" @onclick="() => AddSongToPlaylist(video.YTVidoeId)">Add to Playlist</button>
-                            }else{
+                            }
+                            else
+                            {
                                 <button class="btn btn-primary" disabled>Already added</button>
                             }
-                            
+
                         </div>
                     </div>
                 }
@@ -110,8 +133,6 @@
             <br />
         }
     }
-
-
     <table class="table table-striped">
         <thead>
             <tr>
@@ -159,6 +180,8 @@
 @code {
     [Parameter]
     public string? Id { get; set; }
+    [Parameter]
+    public string? prevPage { get; set; }
     public bool YTsearchEngine = false;
     string searchURLInput = string.Empty;
     string searchVideoInput = string.Empty;
@@ -202,7 +225,15 @@
             else
             {
                 await playlistService.UpdatePlaylist(id);
-                navigationManager.NavigateTo("/mainpage", true);
+                if (prevPage == "editPlaylistMain")
+                {
+                    navigationManager.NavigateTo("/mainpage", true);
+                }
+                else
+                {
+                    navigationManager.NavigateTo("/profile", true);
+                }
+
             }
 
         }
@@ -216,7 +247,7 @@
 
     async Task AddByURL()
     {
-        if(isVideoURL == true)
+        if (isVideoURL == true)
         {
             await playlistService.GetVideo(searchURLInput);
         }

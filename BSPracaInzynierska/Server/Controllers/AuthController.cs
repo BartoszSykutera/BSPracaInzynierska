@@ -27,6 +27,19 @@ namespace BSPracaInzynierska.Server.Controllers
             this.context = context;
         }
 
+        [HttpGet("profile/{id}")]
+        public async Task<ActionResult<User>> GetUser(Guid id)
+        {
+            var user = await context.Uzytkownicy.Include(u => u.FavouritePlaylists).ThenInclude(p => p.Songs).Include(u => u.FavouritePlaylists).ThenInclude(p => p.Creator).Where(u => u.Id == id).FirstOrDefaultAsync();
+
+            if (user == null)
+            {
+                return NotFound();
+            }
+
+            return user;
+        }
+
         [HttpPost("register")]
         public async Task<ActionResult> Register(UserLogs userLogs)
         {

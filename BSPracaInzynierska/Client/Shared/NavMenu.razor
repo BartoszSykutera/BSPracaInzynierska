@@ -6,7 +6,7 @@
 
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
     <div class="container-fluid">
-        <div class="navbar-header">    
+        <div class="navbar-header">
             <ul class="nav navbar-nav">
                 <li>
                     <NavLink class="nav-link" href="mainpage">
@@ -23,21 +23,28 @@
                         <span class="oi oi-home" aria-hidden="true"></span> Login
                     </NavLink>
                 </li>
-                <li>
-                    <NavLink class="nav-link" href="">
-                        <span class="oi oi-home" aria-hidden="true"></span> Home
-                    </NavLink>
-                </li>
-                <li>
-                    <NavLink class="nav-link" href="counter">
-                        <span class="oi oi-plus" aria-hidden="true"></span> Counter
-                    </NavLink>
-                </li>
-                <li>
-                    <NavLink class="nav-link" href="createPlaylist">
-                        <span class="oi oi-plus" aria-hidden="true"></span> Playlist
-                    </NavLink>
-                </li>
+                <AuthorizeView>
+                    <li>
+                        <NavLink class="nav-link" href="">
+                            <span class="oi oi-home" aria-hidden="true"></span> Home
+                        </NavLink>
+                    </li>
+                    <li>
+                        <NavLink class="nav-link" href="profile">
+                            <span class="oi oi-plus" aria-hidden="true"></span> @currentUserName
+                        </NavLink>
+                    </li>
+                    <li>
+                        <NavLink class="nav-link" href="mainpage">
+                            <span class="oi oi-plus" aria-hidden="true"></span> Main Page
+                        </NavLink>
+                    </li>
+                    <li>
+                        <NavLink class="nav-link" href="createPlaylist">
+                            <span class="oi oi-plus" aria-hidden="true"></span> Playlist
+                        </NavLink>
+                    </li>
+                </AuthorizeView>
             </ul>
         </div>
         <ul class="nav navbar-nav navbar-right">
@@ -57,8 +64,23 @@
     </div>
 </nav>
 
-
 @code {
+    [CascadingParameter]
+    public Task<AuthenticationState> authenticationState { get; set; }
+    public string currentUserName = string.Empty;
+    protected override async Task OnInitializedAsync()
+    {
+        var authState = await authenticationState;
+        var user = authState.User;
+        if (user.Identity.IsAuthenticated)
+        {
+            //navigationManager.NavigateTo("/", true);
+            currentUserName = user.Identity.Name;
+        }
+
+        await base.OnInitializedAsync();
+    }
+
     private async void Logout()
     {
         await localStorage.RemoveItemAsync("jwt_token");

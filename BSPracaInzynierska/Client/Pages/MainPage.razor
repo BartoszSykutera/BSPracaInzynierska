@@ -72,7 +72,8 @@
     public async Task DeletePlaylist(Guid id)
     {
         await mainService.DeletePlaylists(id);
-        await mainService.GetPlaylists();
+        await InvokeAsync(() => StateHasChanged());
+        //await mainService.GetPlaylists();
     }
 
     public void PlayGameOne(Guid id)
@@ -82,7 +83,7 @@
 
     public void EditPlaylist(Guid id)
     {
-        navigationManager.NavigateTo($"editPlaylist/{id.ToString()}");
+        navigationManager.NavigateTo($"editPlaylistMain/{id.ToString()}");
     }
 
 }

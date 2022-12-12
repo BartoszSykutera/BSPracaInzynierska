@@ -25,6 +25,8 @@ namespace BSPracaInzynierska.Client.Services
         public async Task DeletePlaylists(Guid id)
         {
             var result = await _httpClient.DeleteAsync($"api/MusicPlaylists/{id}");
+            MusicPlaylist playlistToRemove = playlists.Where(p => p.Id == id).FirstOrDefault();
+            playlists.Remove(playlistToRemove);
         }
 
         public async Task GetPlaylists()

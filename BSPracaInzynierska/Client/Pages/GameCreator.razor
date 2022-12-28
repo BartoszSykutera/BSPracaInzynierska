@@ -10,15 +10,18 @@
         @gameCreator.playlist.Description
     </h5>
     <br />
-    @if (isFav == false)
+    @if (currentUserId != gameCreator.playlist.UserId)
     {
-        <button class="btn btn-primary btn-lg" @onclick="AddToFav" type="button">Add to favourites</button>
-    }else{
-        <button class="btn btn-danger btn-lg" @onclick="RemoveFromFav" type="button">Remove from favourites</button>
+        @if (isFav == false)
+        {
+            <button class="btn btn-primary btn-lg" @onclick="AddToFav" type="button">Add to favourites</button>
+        }
+        else
+        {
+            <button class="btn btn-danger btn-lg" @onclick="RemoveFromFav" type="button">Remove from favourites</button>
+        }
+        <h5 class="font-weight-bold">Number of likes: @gameCreator.playlist.favourites</h5>
     }
-    
-    <br />
-    <br />
     <br />
     <h4 class="font-weight-bold">Select you game mode:</h4>
     <select @onchange="(e) => ChangeGameType(e.Value)">
@@ -38,42 +41,47 @@
                 <h2>Blind Guess Game</h2>
             </div>
             <div class="card-body">
+                <div class="container">
+                    <div class="row">
+                        <div class="col-6">
+                            <h4>What do you want to guess?</h4>
+                            <select @onchange="(e) => ChangeGuessType(e.Value)">
+                                <option value="Author">Author</option>
+                                <option value="Title" selected>Title</option>
+                            </select>
+                            <br />
+                            <br />
+                            <h4>How many songs?</h4>
+                            <input min=1 max=@gameCreator.songs.Count() style="width: 15%;" type="number" @bind-value="songToGuess" class="form-control" placeholder="time" aria-label="time" aria-describedby="basic-addon2">
+                            <p class="text-danger">@errorMessSong</p>
+                            <h4>Duration of the game?</h4>
+                            <input Min=@gameCreator.songs.Count() style="width: 15%;" type="number" @bind-value="gameDuration" class="form-control" placeholder="time" aria-label="time" aria-describedby="basic-addon2">
+                        </div>
+                        <div class="col-6">
+                            <h4>LeaderBoard</h4>
+                            <table class="table  table-striped" style="width: 70%">
+                                <thead>
+                                    <tr class="table-warning">
+                                        <th scope="col">#</th>
+                                        <th scope="col">Username</th>
+                                        <th scope="col">Points</th>
+                                    </tr>
+                                </thead>
+                                @foreach (var result in gameCreator.blindGuessLeaderBoard)
+                                {
+                                    <tbody>
+                                        <tr>
 
-                <h4>What do you want to guess?</h4>
-                <select @onchange="(e) => ChangeGuessType(e.Value)">
-                    <option value="Author">Author</option>
-                    <option value="Title" selected>Title</option>
-                </select>
-                <br />
-                <br />
-                <h4>How many songs?</h4>
-                <input min=1 max=@gameCreator.songs.Count() style="width: 15%;" type="number" @bind-value="songToGuess" class="form-control" placeholder="time" aria-label="time" aria-describedby="basic-addon2">
-                <p class="text-danger">@errorMessSong</p>
-                <h4>Duration of the game?</h4>
-                <input Min=@gameCreator.songs.Count() style="width: 15%;" type="number" @bind-value="gameDuration" class="form-control" placeholder="time" aria-label="time" aria-describedby="basic-addon2">
-                <br />
-                <br />
-                <h4>LeaderBoard</h4>
-                <table class="table  table-striped" style="width: 50%">
-                    <thead>
-                        <tr class="table-warning">
-                            <th scope="col">#</th>
-                            <th scope="col">Username</th>
-                            <th scope="col">Points</th>
-                        </tr>
-                    </thead>
-                    @foreach (var result in gameCreator.blindGuessLeaderBoard)
-                    {
-                        <tbody>
-                            <tr>
-
-                                <th scope="row">@(gameCreator.blindGuessLeaderBoard.FindIndex(i => i.Id == result.Id) + 1)</th>
-                                <td>@result.Player.Username</td>
-                                <td>@result.Points</td>
-                            </tr>
-                        </tbody>
-                    }
-                </table>
+                                            <th scope="row">@(gameCreator.blindGuessLeaderBoard.FindIndex(i => i.Id == result.Id) + 1)</th>
+                                            <td>@result.Player.Username</td>
+                                            <td>@result.Points</td>
+                                        </tr>
+                                    </tbody>
+                                }
+                            </table>
+                        </div>
+                    </div>
+                </div>
 
             </div>
             <div class="card-footer">
@@ -89,33 +97,43 @@
                 <h2>Lighting Rounds</h2>
             </div>
             <div class="card-body">
-                <h4>How many songs?</h4>
-                <input min=1 max=@gameCreator.songs.Count() style="width: 15%;" type="number" @bind-value="songToGuess" class="form-control" placeholder="time" aria-label="time" aria-describedby="basic-addon2">
-                <p class="text-danger">@errorMessSong</p>
-                <h4>Duration of one round?</h4>
-                <input Min=1 max=10 style="width: 15%;" type="number" @bind-value="gameDuration" class="form-control" placeholder="time" aria-label="time" aria-describedby="basic-addon2">
-                <br />
-                <h4>LeaderBoard</h4>
-                <table class="table  table-striped" style="width: 50%">
-                    <thead>
-                        <tr class="table-warning">
-                            <th scope="col">#</th>
-                            <th scope="col">Username</th>
-                            <th scope="col">Points</th>
-                        </tr>
-                    </thead>
-                    @foreach (var result in gameCreator.lightningRoundLeaderBoard)
-                    {
-                        <tbody>
-                            <tr>
 
-                                <th scope="row">@(gameCreator.lightningRoundLeaderBoard.FindIndex(i => i.Id == result.Id) + 1)</th>
-                                <td>@result.Player.Username</td>
-                                <td>@result.Points</td>
-                            </tr>
-                        </tbody>
-                    }
-                </table>
+                <div class="container">
+                    <div class="row">
+                        <div class="col-6">
+
+                            <h4>How many songs?</h4>
+                            <input min=1 max=@gameCreator.songs.Count() style="width: 15%;" type="number" @bind-value="songToGuess" class="form-control" placeholder="time" aria-label="time" aria-describedby="basic-addon2">
+                            <p class="text-danger">@errorMessSong</p>
+                            <h4>Duration of one round?</h4>
+                            <input Min=1 max=10 style="width: 15%;" type="number" @bind-value="gameDuration" class="form-control" placeholder="time" aria-label="time" aria-describedby="basic-addon2">
+                        </div>
+                        <div class="col-6">
+                            <h4>LeaderBoard</h4>
+                            <table class="table  table-striped" style="width: 70%">
+                                <thead>
+                                    <tr class="table-warning">
+                                        <th scope="col">#</th>
+                                        <th scope="col">Username</th>
+                                        <th scope="col">Points</th>
+                                    </tr>
+                                </thead>
+                                @foreach (var result in gameCreator.lightningRoundLeaderBoard)
+                                {
+                                    <tbody>
+                                        <tr>
+
+                                            <th scope="row">@(gameCreator.lightningRoundLeaderBoard.FindIndex(i => i.Id == result.Id) + 1)</th>
+                                            <td>@result.Player.Username</td>
+                                            <td>@result.Points</td>
+                                        </tr>
+                                    </tbody>
+                                }
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
 
 
             </div>
@@ -196,11 +214,15 @@
     private Guid currentUserId = Guid.Empty;
     private bool isFav = false;
 
-    protected override async Task OnParametersSetAsync()
+    protected override async Task OnInitializedAsync()
     {
         var authState = await authenticationState;
         var user = authState.User;
         currentUserId = new Guid(user.FindFirst(c => c.Type.Contains("nameidentifier"))?.Value);
+    }
+
+    protected override async Task OnParametersSetAsync()
+    {
         await gameCreator.GetSongs(new Guid(Id));
         isFav = await gameCreator.CheckFavourites(new Guid(Id), currentUserId);
         songToGuess = gameCreator.songs.Count();

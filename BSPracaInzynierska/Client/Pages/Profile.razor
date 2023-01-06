@@ -3,30 +3,47 @@
 @inject NavigationManager navigationManager
 @inject IProfileService profileService
 
-<div class="container mx-auto text-center">
+<div class="container mx-auto">
 @if (Id == null)
 {
-    <h1 class="font-weight-bold">Hello @currentUserName, welcome to your profile!</h1>
+    <h1 style="font-weight:bold">Hello @currentUser.Username, welcome to your profile!</h1>
 }
 else
 {
-    <h1 class="font-weight-bold">This is profile of @currentUserName</h1>
+        <h1 style="font-weight:bold">This is profile of @currentUser.Username</h1>
 }
-</div>
+    <br />
+<h3 style="font-weight:bold">User Infos:</h3>
+<h6>Email: @currentUser.Email</h6>
+<h6>Saved playlists: @profileService.favouritePlaylists.Count()</h6>
+<h6>Created playlists: @profileService.createdPlaylists.Count()</h6>
 <br />
-<h1 class="font-weight-bold">Show</h1>
+@if (Id == null)
+{
+    <h3 class="font-weight-bold">Show</h3>
 <select @onchange="(e) => ChangePlaylists(e.Value)">
     <option value="True" selected>Created playlists</option>
     <option value="False">Saved playlists</option>
 </select>
+}
+
 <br />
 <br />
 @if (isCreatedShow == true)
 {
-    <h1 class="font-weight-bold">Your Playlists</h1>
-    <button class="btn btn-success" @onclick="() => CreateNew()" type="button">Create new playlist</button>
-    <br />
-    <br />
+    @if (Id == null)
+    {
+        <h1 style="font-weight:bold">Your Playlists</h1>
+        <button class="btn btn-success" @onclick="() => CreateNew()" type="button">Create new playlist</button>
+        <br />
+        <br />
+    }
+    else
+    {
+        <h1 style="font-weight:bold">Created Playlists</h1>
+        <br />
+        <br />
+    }
     <div class="container mx-auto" style="display: flex; flex-wrap: wrap; gap: 10px;">
         @foreach (var playlist in profileService.createdPlaylists)
         {
@@ -37,7 +54,7 @@ else
                     <p class="card-text">
                         Number of Tracks: @playlist.Songs.Count()
                         <br />
-                        Created by: @playlist.Creator.Username
+                        @playlist.favourites <span class="oi oi-thumb-up" aria-hidden="true" style="font-size: 110%;"></span>
                     </p>
                     @if (Id == null)
                     {
@@ -53,7 +70,7 @@ else
 }
 else
 {
-    <h1 class="font-weight-bold">Saved Playlists</h1>
+        <h1 style="font-weight:bold">Saved Playlists</h1>
     <br />
     <br />
     <div class="container mx-auto" style="display: flex; flex-wrap: wrap; gap: 10px;">
@@ -66,7 +83,7 @@ else
                     <p class="card-text">
                         Number of Tracks: @playlist.Songs.Count()
                         <br />
-                        Created by: @playlist.Creator.Username
+                        Created by: <a href="" @onclick="()=>GoToProfile(playlist.Creator.Id)" @onclick:preventDefault>@playlist.Creator.Username</a>
                     </p>
                     <button class="btn btn-success" @onclick="() => PlayGameOne(playlist.Id)" type="button">Play</button>
                 </div>
@@ -74,6 +91,7 @@ else
         }
     </div>
 }
+</div>
 
 
 
@@ -83,6 +101,7 @@ else
     [Parameter]
     public string? Id { get; set; } = string.Empty;
     public Guid currentUserId = Guid.Empty;
+    public User currentUser = new User();
     public string currentUserName = string.Empty;
     public bool isCreatedShow = true;
 
@@ -96,8 +115,9 @@ else
         }
         else
         {
+
             if (Id == null)
-                currentUserId = new Guid(user.FindFirst(c => c.Type.Contains("nameidentifier"))?.Value);
+                currentUserId = new Guid(user.FindFirst(c => c.Type.Contains("nameidentifier"))?.Value);  
             else
                 currentUserId = new Guid(Id);
 
@@ -109,10 +129,16 @@ else
             }
             else
             {
-                currentUserName = profileService.userProfile.Username;
+                //currentUserName = profileService.userProfile.Username;
+                currentUser = profileService.userProfile;
                 await profileService.GetCreatedPlaylist(currentUserId);
             }
         }
+    }
+
+    public void GoToProfile(Guid id)
+    {
+        navigationManager.NavigateTo($"/userProfile/{id.ToString()}", true);
     }
 
     void ChangePlaylists(object args)
@@ -129,7 +155,7 @@ else
 
     public void PlayGameOne(Guid id)
     {
-        navigationManager.NavigateTo($"gameCreator/{id.ToString()}");
+        navigationManager.NavigateTo($"gameCreator/{id.ToString()}",true);
     }
 
     public void EditPlaylist(Guid id)

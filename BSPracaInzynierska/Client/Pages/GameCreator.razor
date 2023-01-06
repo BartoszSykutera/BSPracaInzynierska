@@ -14,11 +14,15 @@
     {
         @if (isFav == false)
         {
-            <button class="btn btn-primary btn-lg" @onclick="AddToFav" type="button">Add to favourites</button>
+            <button class="btn btn-primary btn-lg" @onclick="AddToFav" type="button">
+                <span class="oi oi-thumb-up" aria-hidden="true" style="font-size: 110%;"></span>
+                Like</button>
         }
         else
         {
-            <button class="btn btn-danger btn-lg" @onclick="RemoveFromFav" type="button">Remove from favourites</button>
+            <button class="btn btn-danger btn-lg" @onclick="RemoveFromFav" type="button">
+                <span class="oi oi-thumb-down" aria-hidden="true" style="font-size: 110%;"></span>
+                Dislike</button>
         }
         <h5 class="font-weight-bold">Number of likes: @gameCreator.playlist.favourites</h5>
     }
@@ -44,13 +48,6 @@
                 <div class="container">
                     <div class="row">
                         <div class="col-6">
-                            <h4>What do you want to guess?</h4>
-                            <select @onchange="(e) => ChangeGuessType(e.Value)">
-                                <option value="Author">Author</option>
-                                <option value="Title" selected>Title</option>
-                            </select>
-                            <br />
-                            <br />
                             <h4>How many songs?</h4>
                             <input min=1 max=@gameCreator.songs.Count() style="width: 15%;" type="number" @bind-value="songToGuess" class="form-control" placeholder="time" aria-label="time" aria-describedby="basic-addon2">
                             <p class="text-danger">@errorMessSong</p>
@@ -101,7 +98,6 @@
                 <div class="container">
                     <div class="row">
                         <div class="col-6">
-
                             <h4>How many songs?</h4>
                             <input min=1 max=@gameCreator.songs.Count() style="width: 15%;" type="number" @bind-value="songToGuess" class="form-control" placeholder="time" aria-label="time" aria-describedby="basic-addon2">
                             <p class="text-danger">@errorMessSong</p>
@@ -133,9 +129,6 @@
                         </div>
                     </div>
                 </div>
-
-
-
             </div>
             <div class="card-footer">
                 <button class="btn btn-success btn-lg" @onclick="Play" type="button">Play custom game</button>
@@ -151,13 +144,6 @@
                 <h2>Multiplayer</h2>
             </div>
             <div class="card-body">
-                <h4>End the round when time runs out?</h4>
-                <select @onchange="(e) => ChangeGuessType(e.Value)">
-                    <option value="F">False</option>
-                    <option value="T" selected>True</option>
-                </select>
-                <br />
-                <br />
                 <h4>How many songs?</h4>
                 <input min=1 max=@gameCreator.songs.Count() style="width: 15%;" type="number" @bind-value="songToGuess" class="form-control" placeholder="time" aria-label="time" aria-describedby="basic-addon2">
                 <p class="text-danger">@errorMessSong</p>

@@ -15,6 +15,24 @@
     <br />
     <br />
     <h1 class="font-weight-bold">Choose your Playlist</h1>
+    <div class="container">
+        <div class="row">
+            <div class="form-check" style="margin:auto;width:15%;">
+                <input class="form-check-input" type="checkbox" value="" id="jakiesID" checked>
+                <label class="form-check-label" for="jakiesID">
+                    Show official playlists
+                </label>
+            </div>
+        </div>
+        <div class="row">
+            <h5>Sort by:</h5>
+            <select @onchange="(e) => ChangeFilter(e.Value)" style="margin:auto;width:15%;">
+                <option value="date" selected>Date</option>
+                <option value="popular">Popularity</option>
+            </select>
+        </div>
+    </div>
+
     <br />
     <div class="container mx-auto" style="display: flex; flex-wrap: wrap; gap: 10px;">
         @foreach (var playlist in mainService.playlists)
@@ -26,10 +44,14 @@
                     <p class="card-text">
                         Number of Tracks: @playlist.Songs.Count()
                         <br />
-                        Created by: @playlist.Creator.Username
+                        Created by: <a href="" @onclick="()=>GoToProfile(playlist.Creator.Id)" @onclick:preventDefault>@playlist.Creator.Username</a>
+                        <br />
+                        @playlist.favourites <span class="oi oi-thumb-up" aria-hidden="true" style="font-size: 110%;"></span>
                     </p>
-                    <button class="btn btn-danger" @onclick="() => DeletePlaylist(playlist.Id)" type="button">Delete</button>
-                    <button class="btn btn-warning" @onclick="() => EditPlaylist(playlist.Id)" type="button">Edit</button>
+                    <AuthorizeView Roles="Admin">
+                        <button class="btn btn-danger" @onclick="() => DeletePlaylist(playlist.Id)" type="button">Delete</button>
+                        <button class="btn btn-warning" @onclick="() => EditPlaylist(playlist.Id)" type="button">Edit</button>
+                    </AuthorizeView>
                     <button class="btn btn-success" @onclick="() => PlayGameOne(playlist.Id)" type="button">Play</button>
                 </div>
             </div>
@@ -44,18 +66,41 @@
     public Task<AuthenticationState> authenticationState { get; set; }
     public string gameCode { get; set; } = string.Empty;
     public string errorMessage { get; set; } = string.Empty;
+    public string currentUserName = string.Empty;
+    public Guid currentUserId = Guid.Empty;
 
     protected override async Task OnInitializedAsync()
     {
         await mainService.GetPlaylists();
+        var authState = await authenticationState;
+        var user = authState.User;
+        currentUserName = user.FindFirst(ClaimTypes.Name)?.Value;
+        currentUserId = new Guid(user.FindFirst(ClaimTypes.NameIdentifier)?.Value);
+    }
+
+    public void GoToProfile(Guid id)
+    {
+        if(id == currentUserId)
+        {
+            navigationManager.NavigateTo("/profile");
+        }
+        else
+        {
+            navigationManager.NavigateTo($"/userProfile/{id.ToString()}");
+        }
+    }
+
+    void ChangeFilter(object args)
+    {
+        var gameGuess = args.ToString();
     }
 
     public async Task JoinGame()
     {
         var authState = await authenticationState;
         var user = authState.User;
-        var id = new Guid(user.FindFirst(ClaimTypes.NameIdentifier)?.Value);
-        HttpResponseMessage message = await mainService.JoinGame(gameCode, id);
+        //var id = new Guid(user.FindFirst(ClaimTypes.NameIdentifier)?.Value);
+        HttpResponseMessage message = await mainService.JoinGame(gameCode, currentUserId);
         var responseStatusCode = message.StatusCode;
         var returnedMessage = await message.Content.ReadAsStringAsync();
 

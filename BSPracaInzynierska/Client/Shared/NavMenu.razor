@@ -4,29 +4,42 @@
 
 
 
-<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark" style="background-color: #0c090a;">
     <div class="container-fluid">
         <div class="navbar-header">
             <ul class="nav navbar-nav">
                 <li>
                     <NavLink class="nav-link" href="">
-                        <a class="navbar-brand">What's that Melody?</a>
+                        <a class="navbar-brand" style="font-size: 150%;">
+                             Guess that Melody 
+                            <span class="oi oi-musical-note" aria-hidden="true" style="font-size: 100%;"></span>
+                        </a>
                     </NavLink>
                 </li>
                 <AuthorizeView>
                     <li>
+                        <NavLink class="nav-link">
+                        </NavLink>
+                    </li>
+                    <li>
                         <NavLink class="nav-link" href="profile">
-                            <span class="oi oi-plus" aria-hidden="true"></span> @currentUserName
+                            <a class="navbar-brand" style="font-size: 135%;">
+                                <span class="oi oi-person" aria-hidden="true" style="font-size: 110%;"></span> @currentUserName
+                                </a>
                         </NavLink>
                     </li>
                     <li>
                         <NavLink class="nav-link" href="mainpage">
-                            <span class="oi oi-plus" aria-hidden="true"></span> Main Page
+                            <a class="navbar-brand" style="font-size: 135%;">
+                                <span class="oi oi-globe" aria-hidden="true" style="font-size: 110%;"></span> Main Page
+                            </a>
                         </NavLink>
                     </li>
                     <li>
                         <NavLink class="nav-link" href="createPlaylist">
-                            <span class="oi oi-plus" aria-hidden="true"></span> Playlist
+                            <a class="navbar-brand" style="font-size: 135%;">
+                                <span class="oi oi-plus" aria-hidden="true" style="font-size: 110%;"></span>Add Playlist
+                            </a>
                         </NavLink>
                     </li>
                 </AuthorizeView>
@@ -36,11 +49,17 @@
             <li>
                 <AuthorizeView>
                     <Authorized>
-                        <button class="btn btn-danger" @onclick="Logout">Logout</button>
+                        <button class="btn btn-danger" style="font-size: 135%;" @onclick="Logout">
+                            <span class="oi oi-account-login" aria-hidden="true" style="font-size: 110%;"></span>
+                            Logout
+                            </button>
                     </Authorized>
                     <NotAuthorized>
                         <NavLink class="nav-link" href="login">
-                            <button class="btn btn-primary">Login</button>
+                            <button class="btn btn-primary" style="font-size: 135%;">
+                                <span class="oi oi-account-login" aria-hidden="true" style="font-size: 110%;"></span>
+                                Login
+                                </button>
                         </NavLink>
                     </NotAuthorized>
                 </AuthorizeView>

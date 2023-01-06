@@ -59,13 +59,21 @@ namespace BSPracaInzynierska.Client.Services.PlaylistService
             {
                 id = match.Groups[1].Value;
                 var result = await _httpClient.PostAsJsonAsync<string>("api/Songs/getvideobyurl", id);
-                Song? searchedSong = await result.Content.ReadFromJsonAsync<Song>();
-                if(searchedSong != null)
+                if(result.StatusCode == System.Net.HttpStatusCode.OK)
                 {
-                    songs.Insert(0, searchedSong);
-                    musicPlaylist.blindGuessSongs = songs.Count();
-                    musicPlaylist.lightningRoundSongs = songs.Count();
+                    Song? searchedSong = await result.Content.ReadFromJsonAsync<Song>();
+                    if(searchedSong != null)
+                    {
+                        songs.Insert(0, searchedSong);
+                        musicPlaylist.blindGuessSongs = songs.Count();
+                        musicPlaylist.lightningRoundSongs = songs.Count();
+                    }
                 }
+                else
+                {
+                    var gggff = "gfdhf";
+                }
+                
             }
         }
 

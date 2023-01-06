@@ -38,18 +38,18 @@ namespace BSPracaInzynierska.Server.Controllers
                     playlistRequest.PageToken = nextPageToken;
                 var playlistResponse = await playlistRequest.ExecuteAsync();
                 searchedVideo.AddRange(playlistResponse.Items.Select(video => new Song
-                {
-                    Author = CreateTitleAuthor(video.Snippet.Title, video.Snippet.ChannelTitle)[0],
-                    Title = CreateTitleAuthor(video.Snippet.Title, video.Snippet.ChannelTitle)[1],
-                    Picture = video.Snippet.Thumbnails.Medium.Url,
-                    YTVideoTitle = video.Snippet.Title,
-                    YTVidoeId = video.Snippet.ResourceId.VideoId,
-                    YTChanelName = video.Snippet.ChannelTitle
-                }));
+                    {
+                        Author = CreateTitleAuthor(video.Snippet.Title, video.Snippet.ChannelTitle)[0],
+                        Title = CreateTitleAuthor(video.Snippet.Title, video.Snippet.ChannelTitle)[1],
+                        Picture = video.Snippet.Thumbnails.Medium.Url,
+                        YTVideoTitle = video.Snippet.Title,
+                        YTVidoeId = video.Snippet.ResourceId.VideoId,
+                        YTChanelName = video.Snippet.ChannelTitle
+                    }));
                 nextPageToken = playlistResponse.NextPageToken;
 
             } while (nextPageToken != null);
-            
+
             return Ok(searchedVideo);
         }
 
@@ -61,18 +61,20 @@ namespace BSPracaInzynierska.Server.Controllers
             videoRequest.Id = input;
             videoRequest.MaxResults = 1;
             var videoResponse = await videoRequest.ExecuteAsync();
-            searchedVideo.AddRange(videoResponse.Items.Select(video => new Song
+            if (videoResponse.Items.Count > 0 || videoResponse.Items.First().Snippet.CategoryId=="10")
             {
-                Author = CreateTitleAuthor(video.Snippet.Title, video.Snippet.ChannelTitle)[0],
-                Title = CreateTitleAuthor(video.Snippet.Title, video.Snippet.ChannelTitle)[1],
-                Picture = video.Snippet.Thumbnails.Medium.Url,
-                YTVideoTitle = video.Snippet.Title,
-                YTVidoeId = video.Id,
-                YTChanelName = video.Snippet.ChannelTitle
-            }));
-
-
-            return Ok(searchedVideo.First());
+                searchedVideo.AddRange(videoResponse.Items.Select(video => new Song
+                {
+                    Author = CreateTitleAuthor(video.Snippet.Title, video.Snippet.ChannelTitle)[0],
+                    Title = CreateTitleAuthor(video.Snippet.Title, video.Snippet.ChannelTitle)[1],
+                    Picture = video.Snippet.Thumbnails.Medium.Url,
+                    YTVideoTitle = video.Snippet.Title,
+                    YTVidoeId = video.Id,
+                    YTChanelName = video.Snippet.ChannelTitle
+                }));
+                return Ok(searchedVideo.First());
+            }
+            return BadRequest("Given URL is not a song");
         }
 
         [HttpPost("getvideos")]
@@ -103,7 +105,7 @@ namespace BSPracaInzynierska.Server.Controllers
         private List<string> CreateTitleAuthor(string YTVideoTitle, string channelName)
         {
             List<string> titleParts = YTVideoTitle.Split('-', 2).ToList();
-            if(titleParts.Count == 1)
+            if (titleParts.Count == 1)
             {
                 titleParts.Insert(0, channelName);
             }

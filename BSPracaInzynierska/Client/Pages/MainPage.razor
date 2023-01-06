@@ -34,13 +34,16 @@
     </div>
 
     <br />
-    <div class="container mx-auto" style="display: flex; flex-wrap: wrap; gap: 10px;">
+    <div class="container">
+        <div class="row my-4">
         @foreach (var playlist in mainService.playlists)
         {
-            <div class="card" style="margin:auto; width: 15rem;">
+            <div class="col-3">
+                
+            <div class="card" style="width: 18rem;">
                 <img class="card-img-top" src="@playlist.Songs.FirstOrDefault().Picture" alt="Card image cap">
                 <div class="card-body">
-                    <h4 class="card-title">@playlist.PlaylistName</h4>
+                    <h5 class="card-title" style="font-weight:bold">@playlist.PlaylistName</h5>
                     <p class="card-text">
                         Number of Tracks: @playlist.Songs.Count()
                         <br />
@@ -55,7 +58,9 @@
                     <button class="btn btn-success" @onclick="() => PlayGameOne(playlist.Id)" type="button">Play</button>
                 </div>
             </div>
+</div>
         }
+        </div>
     </div>
 </div>
 

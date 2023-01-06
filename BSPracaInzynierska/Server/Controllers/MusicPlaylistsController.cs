@@ -136,7 +136,7 @@ namespace BSPracaInzynierska.Server.Controllers
             {
                 return NotFound();
             }
-            List<MusicPlaylist> list = new List<MusicPlaylist>();
+            List<MusicPlaylist> list = user.FavouritePlaylists.ToList();
             dbPlaylist.favourites = musicPlaylist.favourites;
             list.Add(dbPlaylist);
             user.FavouritePlaylists = list;

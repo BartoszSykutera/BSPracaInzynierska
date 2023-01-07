@@ -251,7 +251,18 @@
         await JsRuntime.InvokeVoidAsync("initialize");
         gameTime = gameService.MultiGame.gameTime;
         elapsedTime = gameService.MultiGame.gameTime;
-        hubConnection = new HubConnectionBuilder().WithUrl("https://localhost:7069/gamehub").Build();
+
+
+        hubConnection = new HubConnectionBuilder().WithUrl(navigationManager.ToAbsoluteUri("/gamehub")).Build();
+
+        hubConnection.On("StartNewGame", () =>
+        {
+            if (isGameHost == false)
+            {
+                Load(gameService.SongList[0].YTVidoeId);
+            }
+            StateHasChanged();
+        });
 
         hubConnection.On("DisconnectFromGame", () =>
         {
@@ -301,15 +312,6 @@
                 }
             });
             gameService.inGameLeaderboard.Sort((a, b) => b.Points.CompareTo(a.Points));
-            StateHasChanged();
-        });
-
-        hubConnection.On("StartNewGame", () =>
-        {
-            if (isGameHost == false)
-            {
-                Load(gameService.SongList[0].YTVidoeId);
-            }
             StateHasChanged();
         });
 

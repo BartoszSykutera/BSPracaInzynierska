@@ -26,7 +26,7 @@ namespace BSPracaInzynierska.Client.Services.MultiplayerService
             if (resultGame != null)
             {
                 MultiGame = await resultGame.Content.ReadFromJsonAsync<MultiGame>();
-                SongList = MultiGame.Playlist.Songs.ToList();
+                SongList = MultiGame.Playlist.Songs.Take(MultiGame.NumberOfTracks).ToList();
                 SongList.ForEach(s => availableAnswers.Add(s.Title));
                 availableAnswers = availableAnswers.OrderBy(a => rand.Next()).ToList();
                 return MultiGame.Id.ToString();

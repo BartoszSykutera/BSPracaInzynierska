@@ -100,3 +100,4 @@ app.MapFallbackToFile("index.html");
 //app.MapLeaderBoardEndpoints();
 
 app.Run();
+public partial class Program { }

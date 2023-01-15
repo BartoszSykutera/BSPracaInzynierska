@@ -15,9 +15,9 @@ namespace BSPracaInzynierska.Shared
         public string Description { get; set; } = string.Empty;
         public long favourites { get; set; } = 0;
         public int blindGuessTime { get; set; } = 30;
-        public int blindGuessSongs { get; set; }
+        public int blindGuessSongs { get; set; } = 0;
         public int lightningRoundTime { get; set; } = 5;
-        public int lightningRoundSongs { get; set; }
+        public int lightningRoundSongs { get; set; } = 0;
         public Guid? UserId { get; set; }
         public virtual User? Creator { get; set; }
         public virtual ICollection<Song> Songs { get; set; }

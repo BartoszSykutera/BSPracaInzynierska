@@ -48,7 +48,7 @@ namespace BSPracaInzynierska.Server.Controllers
             context.Uzytkownicy.Add(user);
             await context.SaveChangesAsync();
 
-            return Ok();
+            return Ok(user.Id.ToString());
         }
 
         [HttpPost("login")]

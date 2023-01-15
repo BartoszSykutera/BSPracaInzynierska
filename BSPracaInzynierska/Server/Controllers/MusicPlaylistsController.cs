@@ -224,7 +224,15 @@ namespace BSPracaInzynierska.Server.Controllers
             musicPlaylist.Creator = user;
             _context.MusicPlaylists.Add(musicPlaylist);
             _context.Songs.AddRange(musicPlaylist.Songs);
-            await _context.SaveChangesAsync();
+            try
+            {
+                await _context.SaveChangesAsync();
+            }
+            catch(Exception ex)
+            {
+                var fdgfdg = ex.Message;
+            }
+            
 
             return CreatedAtAction("GetMusicPlaylist", new { id = musicPlaylist.Id }, musicPlaylist);
         }

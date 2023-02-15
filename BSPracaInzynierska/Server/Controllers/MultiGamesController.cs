@@ -26,13 +26,6 @@ namespace BSPracaInzynierska.Server.Controllers
             _context = context;
         }
 
-        // GET: api/MultiGames
-        [HttpGet]
-        public async Task<ActionResult<IEnumerable<MultiGame>>> GetGame()
-        {
-            return await _context.Game.ToListAsync();
-        }
-
         // GET: api/MultiGames/gameCode
         [HttpGet("gameCode/{code}/{playerId}")]
         public async Task<ActionResult<string>> GetGameByCode(string code, Guid playerId)
@@ -65,37 +58,6 @@ namespace BSPracaInzynierska.Server.Controllers
             }
 
             return multiGame;
-        }
-
-        // PUT: api/MultiGames/5
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPut("{id}")]
-        public async Task<IActionResult> PutMultiGame(Guid id, MultiGame multiGame)
-        {
-            if (id != multiGame.Id)
-            {
-                return BadRequest();
-            }
-
-            _context.Entry(multiGame).State = EntityState.Modified;
-
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!MultiGameExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
-
-            return NoContent();
         }
 
         // POST: api/MultiGames
@@ -138,11 +100,6 @@ namespace BSPracaInzynierska.Server.Controllers
             await _context.SaveChangesAsync();
 
             return NoContent();
-        }
-
-        private bool MultiGameExists(Guid id)
-        {
-            return _context.Game.Any(e => e.Id == id);
         }
     }
 }

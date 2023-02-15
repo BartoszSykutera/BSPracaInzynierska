@@ -13,6 +13,7 @@ namespace BSPracaInzynierska.Shared
         public string PlaylistName { get; set; } = string.Empty;
         public int NumberOfTracks { get; set; }
         public string Description { get; set; } = string.Empty;
+        public DateTime CreationDate { get; set; }
         public long favourites { get; set; } = 0;
         public int blindGuessTime { get; set; } = 30;
         public int blindGuessSongs { get; set; } = 0;

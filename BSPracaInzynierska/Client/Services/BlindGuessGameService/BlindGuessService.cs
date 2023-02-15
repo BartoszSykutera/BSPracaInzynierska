@@ -28,7 +28,6 @@ namespace BSPracaInzynierska.Client.Services.BlindGuessGameService
                 songs = allSongs.Take(songToGuess).ToList();
                 allSongs.ForEach(s => availableAnswers.Add(s.Title));
                 availableAnswers.Sort((x, y) => string.Compare(x, y));
-                var jfhj = "wqeq";
             }
         }
 
@@ -44,7 +43,6 @@ namespace BSPracaInzynierska.Client.Services.BlindGuessGameService
                 songs = rankedPlaylist.Songs.Take(rankedPlaylist.blindGuessSongs).ToList();
                 rankedPlaylist.Songs.ToList().ForEach(s => availableAnswers.Add(s.Title));
                 availableAnswers.Sort((x, y) => string.Compare(x, y));
-                var hgdfgh = "tryj";
             }
 
         }
@@ -58,8 +56,6 @@ namespace BSPracaInzynierska.Client.Services.BlindGuessGameService
         public async Task SaveToLeaderBoard(Guid userId, Guid playlistId)
         {
             LeaderBoard newLeaderBoardEntry = new LeaderBoard() { UserId = userId, PlaylistId = playlistId, Points = score, gameType = "blindGuess" };
-            //rankedPlaylist.NumberOfTracks = songs.Count();
-            //rankedPlaylist.Songs = songs;
             var resultPlaylist = await _httpClient.PutAsJsonAsync<LeaderBoard>($"api/MusicPlaylists/leaderBoard/{playlistId}", newLeaderBoardEntry);
         }
     }

@@ -13,7 +13,6 @@ namespace BSPracaInzynierska.Shared
         public string Title { get; set; } = string.Empty;
         public string Author { get; set; } = string.Empty;
         public string Picture {  get; set; } = string.Empty;
-        public int? SongDuration { get; set; }
         public Guid? PlaylistId { get; set; }
         public string YTVideoTitle { get; set; } = string.Empty;
         public string YTVidoeId { get; set; } = string.Empty;

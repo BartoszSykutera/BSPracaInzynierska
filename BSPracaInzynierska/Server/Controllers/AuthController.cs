@@ -43,12 +43,22 @@ namespace BSPracaInzynierska.Server.Controllers
         [HttpPost("register")]
         public async Task<ActionResult> Register(UserLogs userLogs)
         {
-            CreatePasswordHash(userLogs.Password, out byte[] hash, out byte[] salt);
-            var user = new User { Username = userLogs.Username, Email = userLogs.Username, PasswordHash = hash, PasswordSalt = salt };
-            context.Uzytkownicy.Add(user);
-            await context.SaveChangesAsync();
+            List<User> users = context.Uzytkownicy.ToList();
+            users = users.FindAll(u => u.Username == userLogs.Username).ToList();
+            if(users.Count() == 0)
+            {
+                CreatePasswordHash(userLogs.Password, out byte[] hash, out byte[] salt);
+                var user = new User { Username = userLogs.Username, Email = userLogs.Email, PasswordHash = hash, PasswordSalt = salt };
+                context.Uzytkownicy.Add(user);
+                await context.SaveChangesAsync();
 
-            return Ok(user.Id.ToString());
+                return Ok(user.Id.ToString());
+            }
+            else
+            {
+                return BadRequest("This username already exists.");
+            }
+            
         }
 
         [HttpPost("login")]
@@ -89,7 +99,6 @@ namespace BSPracaInzynierska.Server.Controllers
 
                 if(jwtSecurityToken != null && jwtSecurityToken.Header.Alg.Equals(SecurityAlgorithms.HmacSha512Signature, StringComparison.InvariantCultureIgnoreCase))
                 {
-                    //var user = new User { Username = "QQQ", Email = "qq", Role = "Admin" };
                     var userId = principle.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
                     return await GetUserById(new Guid(userId));

@@ -183,7 +183,6 @@
         {
             gameTime = Convert.ToDouble(gameDuration);
             elapsedTime = Convert.ToDouble(gameDuration);
-            //elapsedTime = Int32.Parse(gameDuration);
             await gameService.GetSongs(new Guid(Id), Int32.Parse(songToGuess));
         }  
     }
@@ -319,13 +318,8 @@
             Play();
         }
         isGameReady = true;
-        //await JsRuntime.InvokeVoidAsync("playVideo");
         StateHasChanged();
     }
-
-
-
-
 
     public void OnTimedEvent(Object source, System.Timers.ElapsedEventArgs e)
     {

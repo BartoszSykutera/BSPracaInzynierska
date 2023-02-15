@@ -11,6 +11,7 @@ namespace BSPracaInzynierska.Client.Services
         {
             this.http = http;
         }
+        public string errorMess { get; set; } = string.Empty;
         public async Task<AuthenticationToken> Login(string username, string password)
         {
             UserLogs userLogs = new UserLogs { Password = password, Username = username };
@@ -23,6 +24,10 @@ namespace BSPracaInzynierska.Client.Services
         {
             UserLogs userLogs = new UserLogs { Password = password, Username = username };
             var result = await http.PostAsJsonAsync<UserLogs>("api/Auth/register", userLogs);
+            if(result.StatusCode == System.Net.HttpStatusCode.BadRequest)
+            {
+                errorMess = await result.Content.ReadAsStringAsync();
+            }
         }
     }
 }

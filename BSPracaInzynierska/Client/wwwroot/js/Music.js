@@ -1,12 +1,6 @@
-function SetDotNetHelper() {
-    alert("dfg");
-}
-
 var player;
 
 function initialize() {
-    //players.length = 0;
-    //player = null;
     player = null;
     var tag = document.createElement('script');
 
@@ -15,11 +9,6 @@ function initialize() {
     firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
 
 }
-
-function onYouTubeIframeAPIReady() {
-    console.log("juz");
-}
-
 
 function ready(newId) {
     player = null;
@@ -36,23 +25,14 @@ function ready(newId) {
 }
 
 function onPlayerStateChange(event) {
-    console.log("eeeee");
     if (event.data == YT.PlayerState.PLAYING) {
-        console.log("????");
         window.dotNetHelper.invokeMethodAsync('StartTimer');
         window.dotNetHelper.invokeMethodAsync('ShowAnswers');
-        console.log(event.target.getVideoUrl());
     }
 }
 
 function onPlayerReady(event) {
-    console.log("readyyyy");
     window.dotNetHelper.invokeMethodAsync('SongReady', event.target.getVideoUrl());
-}
-
-function onPlayerReadyMulti(event) {
-    console.log("readyyyyMultiii");
-    //window.dotNetHelper.invokeMethodAsync('SongReady', event.target.getVideoUrl());
 }
 
 function loadNew(songId) {
@@ -76,6 +56,5 @@ function pauseVideo() {
 }
 
 function getState(index) {
-    console.log(player.getPlayerState());
     return player.getPlayerState();
 }

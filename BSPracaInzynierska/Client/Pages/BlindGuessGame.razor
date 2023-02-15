@@ -253,16 +253,13 @@
                 currentIndex = videoIds.IndexOf(song);
                 currentlyPlaying = videoIds[currentIndex];
                 await JsRuntime.InvokeVoidAsync("loadNew", currentlyPlaying.songId);
-                //StartTimer();
             }
         }
     }
 
     async Task Pause(musicState song)
     {
-        //isPlayerReady = false;
         videoIds.Where(v => v.songId == song.songId).FirstOrDefault().state = false;
-        //videoIds.Where(v => v.songId == song.songId).FirstOrDefault().isReady = false;
         await JsRuntime.InvokeVoidAsync("pauseVideo");
         StopTimer();
     }

@@ -1,5 +1,4 @@
 ﻿using BSPracaInzynierska.Shared;
-using Google.Apis.YouTube.v3.Data;
 using System.Net.Http.Json;
 
 namespace BSPracaInzynierska.Client.Services.MultiplayerService

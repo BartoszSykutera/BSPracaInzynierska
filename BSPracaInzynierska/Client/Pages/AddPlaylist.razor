@@ -69,6 +69,7 @@
                         <button class="btn btn-outline-primary" @onclick="AddByURL" type="button">Add</button>
                     </div>
                 </div>
+                <p class="text-danger">@playlistService.errMess</p>
             </div>
             <div class="col-2"></div>
         </div>
@@ -244,6 +245,7 @@
 
     async Task AddByURL()
     {
+        playlistService.errMess = string.Empty;
         if (isVideoURL == true)
         {
             await playlistService.GetVideo(searchURLInput);
@@ -252,8 +254,8 @@
         {
             await playlistService.GetVideosFromPlaylist(searchURLInput);
         }
-
         searchURLInput = string.Empty;
+        await InvokeAsync(() => StateHasChanged());
     }
 
     void ChangeURLType(object args)

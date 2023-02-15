@@ -18,7 +18,7 @@
     <div class="container">
         <div class="row">
             <div class="form-check" style="margin:auto;width:15%;">
-                <input class="form-check-input" type="checkbox" value="" id="jakiesID" checked>
+                <input @onchange="eventArgs => {CheckboxClicked(eventArgs.Value);}" class="form-check-input" type="checkbox" value="" id="jakiesID">
                 <label class="form-check-label" for="jakiesID">
                     Show official playlists
                 </label>
@@ -36,30 +36,30 @@
     <br />
     <div class="container">
         <div class="row my-4">
-        @foreach (var playlist in mainService.playlists)
-        {
-            <div class="col-3">
-                
-            <div class="card" style="width: 18rem;">
-                <img class="card-img-top" src="@playlist.Songs.FirstOrDefault().Picture" alt="Card image cap">
-                <div class="card-body">
-                    <h5 class="card-title" style="font-weight:bold">@playlist.PlaylistName</h5>
-                    <p class="card-text">
-                        Number of Tracks: @playlist.Songs.Count()
-                        <br />
-                        Created by: <a href="" @onclick="()=>GoToProfile(playlist.Creator.Id)" @onclick:preventDefault>@playlist.Creator.Username</a>
-                        <br />
-                        @playlist.favourites <span class="oi oi-thumb-up" aria-hidden="true" style="font-size: 110%;"></span>
-                    </p>
-                    <AuthorizeView Roles="Admin">
-                        <button class="btn btn-danger" @onclick="() => DeletePlaylist(playlist.Id)" type="button">Delete</button>
-                        <button class="btn btn-warning" @onclick="() => EditPlaylist(playlist.Id)" type="button">Edit</button>
-                    </AuthorizeView>
-                    <button class="btn btn-success" @onclick="() => PlayGameOne(playlist.Id)" type="button">Play</button>
+            @foreach (var playlist in mainService.shownPlaylists)
+            {
+                <div class="col-3">
+
+                    <div class="card" style="width: 18rem;">
+                        <img class="card-img-top" src="@playlist.Songs.FirstOrDefault().Picture" alt="Card image cap">
+                        <div class="card-body">
+                            <h5 class="card-title" style="font-weight:bold">@playlist.PlaylistName</h5>
+                            <p class="card-text">
+                                Number of Tracks: @playlist.Songs.Count()
+                                <br />
+                                Created by: <a href="" @onclick="()=>GoToProfile(playlist.Creator.Id)" @onclick:preventDefault>@playlist.Creator.Username</a>
+                                <br />
+                                @playlist.favourites <span class="oi oi-thumb-up" aria-hidden="true" style="font-size: 110%;"></span>
+                            </p>
+                            <AuthorizeView Roles="Admin">
+                                <button class="btn btn-danger" @onclick="() => DeletePlaylist(playlist.Id)" type="button">Delete</button>
+                                <button class="btn btn-warning" @onclick="() => EditPlaylist(playlist.Id)" type="button">Edit</button>
+                            </AuthorizeView>
+                            <button class="btn btn-success" @onclick="() => PlayGameOne(playlist.Id)" type="button">Play</button>
+                        </div>
+                    </div>
                 </div>
-            </div>
-</div>
-        }
+            }
         </div>
     </div>
 </div>
@@ -85,7 +85,7 @@
 
     public void GoToProfile(Guid id)
     {
-        if(id == currentUserId)
+        if (id == currentUserId)
         {
             navigationManager.NavigateTo("/profile");
         }
@@ -95,16 +95,23 @@
         }
     }
 
-    void ChangeFilter(object args)
+    public async Task ChangeFilter(object args)
     {
-        var gameGuess = args.ToString();
+        var filter = args.ToString();
+        await mainService.ChangeFilter(filter);
+        await InvokeAsync(() => StateHasChanged());
+    }
+
+    public async Task CheckboxClicked(object checkedValue)
+    {
+        await mainService.CheckboxClick((bool)checkedValue);
+        await InvokeAsync(() => StateHasChanged());
     }
 
     public async Task JoinGame()
     {
         var authState = await authenticationState;
         var user = authState.User;
-        //var id = new Guid(user.FindFirst(ClaimTypes.NameIdentifier)?.Value);
         HttpResponseMessage message = await mainService.JoinGame(gameCode, currentUserId);
         var responseStatusCode = message.StatusCode;
         var returnedMessage = await message.Content.ReadAsStringAsync();
@@ -123,7 +130,6 @@
     {
         await mainService.DeletePlaylists(id);
         await InvokeAsync(() => StateHasChanged());
-        //await mainService.GetPlaylists();
     }
 
     public void PlayGameOne(Guid id)
@@ -135,5 +141,4 @@
     {
         navigationManager.NavigateTo($"editPlaylistMain/{id.ToString()}");
     }
-
 }

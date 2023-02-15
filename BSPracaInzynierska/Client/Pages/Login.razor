@@ -16,6 +16,8 @@
             <br />
             <button class="btn btn-primary" @onclick="LoginUser">Login</button>
             <br />
+            <p class="text-danger">@loginService.errorMess</p>
+            <br />
             <p>Don't have account? <button class="btn btn-outline-primary" @onclick="SignUp">Create one!</button></p>
         </div>
         <div class="col-3"></div>
@@ -33,6 +35,7 @@
 
     protected override async Task OnInitializedAsync()
     {
+        loginService.errorMess = string.Empty;
         var authState = await authenticationState;
         var user = authState.User;
         if(user.Identity.IsAuthenticated)
@@ -51,7 +54,8 @@
         }
         else
         {
-            navigationManager.NavigateTo("/login", true);
+            loginService.errorMess = "Wrong login credentials";
+            await InvokeAsync(() => StateHasChanged());
         }
     }
 

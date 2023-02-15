@@ -188,34 +188,6 @@
 </div>
 
 @code {
-
-    /*
-    * <div class="podium">
-    <div class="podium-item" style="height: 120px; background-color: #cccccc;">2</div>
-    <div class="podium-item" style="height: 150px; background-color: #ffcc00;">1</div>
-    <div class="podium-item" style="height: 90px; background-color: #99cc00;">3</div>
-    </div>
-
-    .podium {
-    display: flex;
-      justify-content: center;
-      align-items: flex-end;
-      }
-
-      .podium-item {
-      width: 100px;
-      height: 100px;
-      border: 0;
-      text-align: center;
-    line-height: 100px;
-    font-size: 20px;
-    }
-
-    .podium-item:not(:last-child) {
-      margin-right: 0px;
-     }
-     */
-
     public string? Id { get; set; }
     [CascadingParameter]
     public Task<AuthenticationState> authenticationState { get; set; }
@@ -368,7 +340,6 @@
         hubConnection.SendAsync("SendTimeStamp", newUserParams, Id);
 
         await JsRuntime.InvokeVoidAsync("pauseVideo");
-        //timer.Enabled = false;
         StopTimer();
         isRoundOver = true;
     }
@@ -407,7 +378,6 @@
         }
         await JsRuntime.InvokeVoidAsync("ready", songId);
         currentlyPlaying = gameService.SongList.First();
-        //isStarted = true;
 
         await generateAnswers();
         await InvokeAsync(() =>
@@ -466,12 +436,7 @@
     [JSInvokable]
     public void SongReady()
     {
-        //if (isGameReady == false)
-        //{
-        //Play();
-        //}
         isGameReady = true;
-        //isStarted = true;
         StateHasChanged();
     }
 
@@ -509,7 +474,6 @@
             Pause();
             timer.Enabled = false;
         }
-
 
         InvokeAsync(() =>
         {

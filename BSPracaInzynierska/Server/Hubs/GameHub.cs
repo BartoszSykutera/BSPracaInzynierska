@@ -18,20 +18,8 @@ namespace BSPracaInzynierska.Server.Hubs
         }
         public static HashSet<UserConnectionInfo> userConnectionInfos = new HashSet<UserConnectionInfo>();
 
-        public async Task SendMessage(string cos)
-        {
-            //string ToUserId = userConnectionInfos.Where(u => u.UserId == cos).FirstOrDefault()?.ConnectionId;
-            string ToUserId = "qwerr";
-            //string FromUserId = userConnectionInfos.Where(u => u.UserId == qwer).FirstOrDefault()?.ConnectionId;
-            var users = new string[] { ToUserId };
-            var dfg = Context.ConnectionId;
-            var fgdf = Context.User.Identity.Name;
-            await Clients.Client(ToUserId).SendAsync("SetHost", true);
-        }
-
         public async Task SendTimeStamp(InGamePlayerInfo user, string gameId)
         {
-            //List<UserConnectionInfo> users = userConnectionInfos.Where(u => u.GameId == gameId).ToList();
             foreach (var connection in userConnectionInfos)
             {
                 if (connection.GameId == gameId)

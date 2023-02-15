@@ -92,24 +92,12 @@ namespace BSPracaInzynierska.Server.Controllers
             {
                 dbPlaylist.Songs.Remove(s);
                 _context.Remove(s);
-                //if (!editSongList.Any(e => e.Id == s.Id))
-                //{
-                //dbPlaylist.Songs.Remove(s);
-                //
-                //return;
-                //}
             });
 
             editSongList.ForEach(s =>
             {
                 dbPlaylist.Songs.Add(s);
                 _context.Add(s);
-                //if (!dbSongList.Any(e => e.Id == s.Id))
-                //{
-                //dbPlaylist.Songs.Add(s);
-                //_context.Add(s);
-                //return;
-                //}
             });
 
             dbPlaylist.NumberOfTracks = musicPlaylist.NumberOfTracks;
@@ -222,6 +210,7 @@ namespace BSPracaInzynierska.Server.Controllers
         {
             User user = _context.Uzytkownicy.Where(u => u.Id == musicPlaylist.UserId).FirstOrDefault();
             musicPlaylist.Creator = user;
+            musicPlaylist.CreationDate = DateTime.Now;
             _context.MusicPlaylists.Add(musicPlaylist);
             _context.Songs.AddRange(musicPlaylist.Songs);
             try
@@ -260,14 +249,16 @@ namespace BSPracaInzynierska.Server.Controllers
                 userFav.FavouritePlaylists.Remove(musicPlaylist);
             }
             _context.MusicPlaylists.Remove(musicPlaylist);
-            await _context.SaveChangesAsync();
+            try
+            {
+                await _context.SaveChangesAsync();
+            }catch (Exception ex)
+            {
+                var dfsgf = ex.Message;
+            }
+            
 
             return NoContent();
-        }
-
-        private bool MusicPlaylistExists(Guid id)
-        {
-            return _context.MusicPlaylists.Any(e => e.Id == id);
         }
     }
 }

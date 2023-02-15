@@ -7,6 +7,7 @@ namespace BSPracaInzynierska.Client.Services.PlaylistService
         List<Song> songs { get; set; }
         List<Song> searchedVideos { get; set; }
         MusicPlaylist musicPlaylist { get; set; }
+        public string errMess { get; set; }
         public Task CreatePlaylist(Guid id);
         public Task UpdatePlaylist(Guid id);
         public Task GetVideos(string input);

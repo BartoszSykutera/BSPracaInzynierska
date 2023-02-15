@@ -61,7 +61,7 @@ namespace BSPracaInzynierska.Server.Controllers
             videoRequest.Id = input;
             videoRequest.MaxResults = 1;
             var videoResponse = await videoRequest.ExecuteAsync();
-            if (videoResponse.Items.Count > 0 || videoResponse.Items.First().Snippet.CategoryId=="10")
+            if (videoResponse.Items.Count > 0 && videoResponse.Items.First().Snippet.CategoryId=="10")
             {
                 searchedVideo.AddRange(videoResponse.Items.Select(video => new Song
                 {
@@ -122,70 +122,6 @@ namespace BSPracaInzynierska.Server.Controllers
                 return NotFound();
             }
             return playlist.Songs.ToList();
-        }
-
-
-        // PUT: api/Songs/5
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPut("{id}")]
-        public async Task<IActionResult> PutSong(Guid id, Song song)
-        {
-            if (id != song.Id)
-            {
-                return BadRequest();
-            }
-
-            _context.Entry(song).State = EntityState.Modified;
-
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!SongExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
-
-            return NoContent();
-        }
-
-        // POST: api/Songs
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPost("postsong")]
-        public async Task<ActionResult<Song>> PostSong(Song song)
-        {
-            _context.Songs.Add(song);
-            await _context.SaveChangesAsync();
-
-            return CreatedAtAction("GetSong", new { id = song.Id }, song);
-        }
-
-        // DELETE: api/Songs/5
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteSong(int id)
-        {
-            var song = await _context.Songs.FindAsync(id);
-            if (song == null)
-            {
-                return NotFound();
-            }
-
-            _context.Songs.Remove(song);
-            await _context.SaveChangesAsync();
-
-            return NoContent();
-        }
-
-        private bool SongExists(Guid id)
-        {
-            return _context.Songs.Any(e => e.Id == id);
         }
     }
 }

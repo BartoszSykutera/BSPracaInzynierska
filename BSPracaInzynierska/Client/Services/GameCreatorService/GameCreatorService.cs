@@ -1,5 +1,4 @@
 ﻿using BSPracaInzynierska.Shared;
-using Google.Apis.YouTube.v3.Data;
 using System.Net.Http.Json;
 
 namespace BSPracaInzynierska.Client.Services.GameCreatorService
@@ -53,14 +52,12 @@ namespace BSPracaInzynierska.Client.Services.GameCreatorService
 
         public async Task GetSongs(Guid id)
         {
-            //playlist = null;
             playlist = new MusicPlaylist();
             var resultPlaylist = await _httpClient.GetAsync($"api/MusicPlaylists/{id}");
 
             if (resultPlaylist != null)
             {
                 playlist = await resultPlaylist.Content.ReadFromJsonAsync<MusicPlaylist>();
-                //var resulat = await _httpClient.PostAsJsonAsync<MusicPlaylist>("api/MusicPlaylists", playlist);
                 songs = playlist.Songs.ToList();
                 blindGuessLeaderBoard = playlist.LeaderBoards.Where(l => l.gameType == "blindGuess").OrderByDescending(l => l.Points).ToList();
                 lightningRoundLeaderBoard = playlist.LeaderBoards.Where(l => l.gameType == "lightningRound").OrderByDescending(l => l.Points).ToList();

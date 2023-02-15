@@ -34,10 +34,9 @@ builder.Services.AddSwaggerGen(options =>
     options.OperationFilter<SecurityRequirementsOperationFilter>();
 });
 
-builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {
-        //options.RequireHttpsMetadata = true;
         options.SaveToken = true;
         options.TokenValidationParameters = new TokenValidationParameters
         {
@@ -48,6 +47,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             ValidateAudience = false
         };
     });
+ 
 
 builder.Services.AddSingleton(new YouTubeService(new BaseClientService.Initializer()
 {
@@ -96,8 +96,6 @@ app.MapControllers();
 app.MapHub<GameHub>("/gamehub");
 
 app.MapFallbackToFile("index.html");
-
-//app.MapLeaderBoardEndpoints();
 
 app.Run();
 public partial class Program { }

@@ -1,8 +1,6 @@
 ﻿using BSPracaInzynierska.Shared;
-using Google.Apis.YouTube.v3.Data;
 using System.Net.Http;
 using System.Net.Http.Json;
-using static Google.Apis.Requests.BatchRequest;
 
 namespace BSPracaInzynierska.Client.Services.ProfileServices
 {
@@ -21,12 +19,10 @@ namespace BSPracaInzynierska.Client.Services.ProfileServices
         {
             var resultUser = await _httpClient.GetAsync($"api/Auth/profile/{id}");
             var responseStatusCode = resultUser.StatusCode;
-            //var returnedMessage = await resultUser.Content.ReadAsStringAsync();
             if (responseStatusCode == System.Net.HttpStatusCode.OK)
             {
                 userProfile = await resultUser.Content.ReadFromJsonAsync<User>();
                 favouritePlaylists = userProfile.FavouritePlaylists.ToList();
-                var sdgf = "fghdhf";
             }
             else
             {
@@ -39,7 +35,6 @@ namespace BSPracaInzynierska.Client.Services.ProfileServices
             if (resultCreatedPlaylist != null)
             {
                 createdPlaylists = await resultCreatedPlaylist.Content.ReadFromJsonAsync<List<MusicPlaylist>>();
-                var ghgh = "serhsdf";
             }
         }
 

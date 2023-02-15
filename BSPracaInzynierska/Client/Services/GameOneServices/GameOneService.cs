@@ -1,5 +1,4 @@
 ﻿using BSPracaInzynierska.Shared;
-using Google.Apis.YouTube.v3.Data;
 using System.Net.Http;
 using System.Net.Http.Json;
 using System.Security.AccessControl;
@@ -68,8 +67,6 @@ namespace BSPracaInzynierska.Client.Services.GameOneServices
         public async Task SaveToLeaderBoard(Guid userId, Guid playlistId)
         {
             LeaderBoard newLeaderBoardEntry = new LeaderBoard() { UserId = userId, PlaylistId = playlistId, Points = totalPoints, gameType = "lightningRound" };
-            //rankedPlaylist.NumberOfTracks = songs.Count();
-            //rankedPlaylist.Songs = songs;
             var resultPlaylist = await _httpClient.PutAsJsonAsync<LeaderBoard>($"api/MusicPlaylists/leaderBoard/{playlistId}", newLeaderBoardEntry);
         }
     }

@@ -51,7 +51,7 @@ builder.Services.AddSwaggerGen(options =>
 
 builder.Services.AddSingleton(new YouTubeService(new BaseClientService.Initializer()
 {
-    ApiKey = "AIzaSyC8f02r72AxLf3SljOilFzUcFJ1I0fTRuU"
+    ApiKey = "yourAPIkey"
 }));
 
 builder.Services.AddCors(options =>
